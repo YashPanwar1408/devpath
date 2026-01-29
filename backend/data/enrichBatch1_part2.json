@@ -1,0 +1,157 @@
+[
+    {
+        "slug": "next-permutation",
+        "solutions": {
+            "brute": {
+                "intuition": "Generate all permutations, sort them, find current permutation and return the next one.",
+                "algorithm": "1. Generate all permutations\n2. Sort them lexicographically\n3. Find current permutation's position\n4. Return next permutation (or first if current is last)",
+                "complexity": {
+                    "time": "O(n! * n)",
+                    "space": "O(n!)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def nextPermutation(self, nums: List[int]) -> None:\n        from itertools import permutations\n        perms = sorted(set(permutations(nums)))\n        curr = tuple(nums)\n        idx = perms.index(curr)\n        next_perm = perms[(idx + 1) % len(perms)]\n        for i in range(len(nums)):\n            nums[i] = next_perm[i]",
+                    "java": "class Solution {\n    public void nextPermutation(int[] nums) {\n        // Brute force: generate all permutations - not practical in Java\n        // Using optimized approach instead\n        int i = nums.length - 2;\n        while (i >= 0 && nums[i] >= nums[i + 1]) i--;\n        if (i >= 0) {\n            int j = nums.length - 1;\n            while (nums[j] <= nums[i]) j--;\n            swap(nums, i, j);\n        }\n        reverse(nums, i + 1);\n    }\n    private void swap(int[] nums, int i, int j) { int t = nums[i]; nums[i] = nums[j]; nums[j] = t; }\n    private void reverse(int[] nums, int start) { int end = nums.length - 1; while (start < end) swap(nums, start++, end--); }\n}",
+                    "cpp": "class Solution {\npublic:\n    void nextPermutation(vector<int>& nums) {\n        next_permutation(nums.begin(), nums.end());\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Find rightmost ascending pair, swap with smallest larger element on right, then reverse the suffix.",
+                "algorithm": "1. Find largest i where nums[i] < nums[i+1] (rightmost ascent)\n2. Find largest j where nums[j] > nums[i]\n3. Swap nums[i] and nums[j]\n4. Reverse elements from i+1 to end\n5. If no ascent found, reverse entire array",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def nextPermutation(self, nums: List[int]) -> None:\n        n = len(nums)\n        i = n - 2\n        while i >= 0 and nums[i] >= nums[i + 1]:\n            i -= 1\n        if i >= 0:\n            j = n - 1\n            while nums[j] <= nums[i]:\n                j -= 1\n            nums[i], nums[j] = nums[j], nums[i]\n        left, right = i + 1, n - 1\n        while left < right:\n            nums[left], nums[right] = nums[right], nums[left]\n            left += 1\n            right -= 1",
+                    "java": "class Solution {\n    public void nextPermutation(int[] nums) {\n        int n = nums.length, i = n - 2;\n        while (i >= 0 && nums[i] >= nums[i + 1]) i--;\n        if (i >= 0) {\n            int j = n - 1;\n            while (nums[j] <= nums[i]) j--;\n            swap(nums, i, j);\n        }\n        reverse(nums, i + 1, n - 1);\n    }\n    private void swap(int[] nums, int i, int j) {\n        int temp = nums[i]; nums[i] = nums[j]; nums[j] = temp;\n    }\n    private void reverse(int[] nums, int l, int r) {\n        while (l < r) swap(nums, l++, r--);\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    void nextPermutation(vector<int>& nums) {\n        int n = nums.size(), i = n - 2;\n        while (i >= 0 && nums[i] >= nums[i + 1]) i--;\n        if (i >= 0) {\n            int j = n - 1;\n            while (nums[j] <= nums[i]) j--;\n            swap(nums[i], nums[j]);\n        }\n        reverse(nums.begin() + i + 1, nums.end());\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "first-missing-positive",
+        "solutions": {
+            "brute": {
+                "intuition": "Check each positive integer starting from 1 to see if it exists in the array.",
+                "algorithm": "1. Convert array to set for O(1) lookup\n2. Start checking from 1\n3. Return first positive integer not in set",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def firstMissingPositive(self, nums: List[int]) -> int:\n        num_set = set(nums)\n        i = 1\n        while i in num_set:\n            i += 1\n        return i",
+                    "java": "class Solution {\n    public int firstMissingPositive(int[] nums) {\n        Set<Integer> set = new HashSet<>();\n        for (int num : nums) set.add(num);\n        int i = 1;\n        while (set.contains(i)) i++;\n        return i;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    int firstMissingPositive(vector<int>& nums) {\n        unordered_set<int> s(nums.begin(), nums.end());\n        int i = 1;\n        while (s.count(i)) i++;\n        return i;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Use the array itself as a hash map. Place each number at its correct index (num at index num-1). Then scan for first position where index+1 != value.",
+                "algorithm": "1. For each position, swap nums[i] to its correct position nums[i]-1\n2. Continue until nums[i] is correct or out of range\n3. Scan array: first i where nums[i] != i+1 is the answer\n4. If all correct, answer is n+1",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def firstMissingPositive(self, nums: List[int]) -> int:\n        n = len(nums)\n        for i in range(n):\n            while 1 <= nums[i] <= n and nums[nums[i] - 1] != nums[i]:\n                nums[nums[i] - 1], nums[i] = nums[i], nums[nums[i] - 1]\n        for i in range(n):\n            if nums[i] != i + 1:\n                return i + 1\n        return n + 1",
+                    "java": "class Solution {\n    public int firstMissingPositive(int[] nums) {\n        int n = nums.length;\n        for (int i = 0; i < n; i++) {\n            while (nums[i] > 0 && nums[i] <= n && nums[nums[i] - 1] != nums[i]) {\n                int temp = nums[nums[i] - 1];\n                nums[nums[i] - 1] = nums[i];\n                nums[i] = temp;\n            }\n        }\n        for (int i = 0; i < n; i++) {\n            if (nums[i] != i + 1) return i + 1;\n        }\n        return n + 1;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    int firstMissingPositive(vector<int>& nums) {\n        int n = nums.size();\n        for (int i = 0; i < n; i++) {\n            while (nums[i] > 0 && nums[i] <= n && nums[nums[i] - 1] != nums[i]) {\n                swap(nums[i], nums[nums[i] - 1]);\n            }\n        }\n        for (int i = 0; i < n; i++) {\n            if (nums[i] != i + 1) return i + 1;\n        }\n        return n + 1;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "encode-and-decode-strings",
+        "solutions": {
+            "brute": {
+                "intuition": "Use a delimiter that is unlikely to appear in strings. Risk: delimiter might exist in input.",
+                "algorithm": "1. Join strings with a special delimiter\n2. Split by delimiter when decoding\n3. May fail if delimiter exists in strings",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Codec:\n    def encode(self, strs: List[str]) -> str:\n        return chr(257).join(strs)\n    \n    def decode(self, s: str) -> List[str]:\n        return s.split(chr(257))",
+                    "java": "public class Codec {\n    public String encode(List<String> strs) {\n        return String.join(\"\\u0257\", strs);\n    }\n    public List<String> decode(String s) {\n        return new ArrayList<>(Arrays.asList(s.split(\"\\u0257\", -1)));\n    }\n}",
+                    "cpp": "class Codec {\npublic:\n    string encode(vector<string>& strs) {\n        string result;\n        for (const string& s : strs) result += s + \"\\x00\";\n        return result;\n    }\n    vector<string> decode(string s) {\n        vector<string> result;\n        string curr;\n        for (char c : s) {\n            if (c == '\\x00') { result.push_back(curr); curr.clear(); }\n            else curr += c;\n        }\n        return result;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Prefix each string with its length followed by a delimiter. This handles any characters in strings.",
+                "algorithm": "1. Encode: for each string, add 'length#string'\n2. Decode: read length, skip #, extract that many characters\n3. Repeat until end of encoded string",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Codec:\n    def encode(self, strs: List[str]) -> str:\n        res = \"\"\n        for s in strs:\n            res += str(len(s)) + \"#\" + s\n        return res\n    \n    def decode(self, s: str) -> List[str]:\n        res, i = [], 0\n        while i < len(s):\n            j = i\n            while s[j] != '#':\n                j += 1\n            length = int(s[i:j])\n            res.append(s[j + 1: j + 1 + length])\n            i = j + 1 + length\n        return res",
+                    "java": "public class Codec {\n    public String encode(List<String> strs) {\n        StringBuilder sb = new StringBuilder();\n        for (String s : strs) {\n            sb.append(s.length()).append('#').append(s);\n        }\n        return sb.toString();\n    }\n    public List<String> decode(String s) {\n        List<String> result = new ArrayList<>();\n        int i = 0;\n        while (i < s.length()) {\n            int j = i;\n            while (s.charAt(j) != '#') j++;\n            int len = Integer.parseInt(s.substring(i, j));\n            result.add(s.substring(j + 1, j + 1 + len));\n            i = j + 1 + len;\n        }\n        return result;\n    }\n}",
+                    "cpp": "class Codec {\npublic:\n    string encode(vector<string>& strs) {\n        string result;\n        for (const string& s : strs) {\n            result += to_string(s.size()) + \"#\" + s;\n        }\n        return result;\n    }\n    vector<string> decode(string s) {\n        vector<string> result;\n        int i = 0;\n        while (i < s.size()) {\n            int j = i;\n            while (s[j] != '#') j++;\n            int len = stoi(s.substr(i, j - i));\n            result.push_back(s.substr(j + 1, len));\n            i = j + 1 + len;\n        }\n        return result;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "largest-number",
+        "solutions": {
+            "brute": {
+                "intuition": "Generate all permutations of numbers and find which concatenation gives the largest result.",
+                "algorithm": "1. Generate all permutations\n2. Concatenate each permutation\n3. Return the maximum",
+                "complexity": {
+                    "time": "O(n! * n)",
+                    "space": "O(n!)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def largestNumber(self, nums: List[int]) -> str:\n        from itertools import permutations\n        strs = [str(x) for x in nums]\n        max_num = \"0\"\n        for perm in permutations(strs):\n            candidate = \"\".join(perm)\n            if int(candidate) > int(max_num):\n                max_num = candidate\n        return max_num if max_num[0] != '0' else \"0\"",
+                    "java": "class Solution {\n    public String largestNumber(int[] nums) {\n        String[] strs = new String[nums.length];\n        for (int i = 0; i < nums.length; i++) strs[i] = String.valueOf(nums[i]);\n        Arrays.sort(strs, (a, b) -> (b + a).compareTo(a + b));\n        if (strs[0].equals(\"0\")) return \"0\";\n        StringBuilder sb = new StringBuilder();\n        for (String s : strs) sb.append(s);\n        return sb.toString();\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    string largestNumber(vector<int>& nums) {\n        vector<string> strs;\n        for (int num : nums) strs.push_back(to_string(num));\n        sort(strs.begin(), strs.end(), [](string& a, string& b) { return a + b > b + a; });\n        if (strs[0] == \"0\") return \"0\";\n        string result;\n        for (string& s : strs) result += s;\n        return result;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Custom sort: compare two numbers by which concatenation is larger. If a+b > b+a, a should come first.",
+                "algorithm": "1. Convert numbers to strings\n2. Sort with custom comparator: compare (a+b) vs (b+a)\n3. Concatenate sorted strings\n4. Handle edge case where result is all zeros",
+                "complexity": {
+                    "time": "O(n log n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def largestNumber(self, nums: List[int]) -> str:\n        from functools import cmp_to_key\n        def compare(a, b):\n            if a + b > b + a:\n                return -1\n            elif a + b < b + a:\n                return 1\n            return 0\n        strs = [str(x) for x in nums]\n        strs.sort(key=cmp_to_key(compare))\n        result = \"\".join(strs)\n        return \"0\" if result[0] == \"0\" else result",
+                    "java": "class Solution {\n    public String largestNumber(int[] nums) {\n        String[] strs = new String[nums.length];\n        for (int i = 0; i < nums.length; i++) {\n            strs[i] = String.valueOf(nums[i]);\n        }\n        Arrays.sort(strs, (a, b) -> (b + a).compareTo(a + b));\n        if (strs[0].equals(\"0\")) return \"0\";\n        StringBuilder sb = new StringBuilder();\n        for (String s : strs) sb.append(s);\n        return sb.toString();\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    string largestNumber(vector<int>& nums) {\n        vector<string> strs;\n        for (int num : nums) strs.push_back(to_string(num));\n        sort(strs.begin(), strs.end(), [](const string& a, const string& b) {\n            return a + b > b + a;\n        });\n        if (strs[0] == \"0\") return \"0\";\n        string result;\n        for (const string& s : strs) result += s;\n        return result;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "text-justification",
+        "solutions": {
+            "brute": {
+                "intuition": "Greedily fit words into lines, then distribute spaces evenly.",
+                "algorithm": "1. Greedily pack words into lines\n2. For each line except last: distribute spaces evenly\n3. Last line: left-justify with single spaces",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def fullJustify(self, words: List[str], maxWidth: int) -> List[str]:\n        result, line, length = [], [], 0\n        for word in words:\n            if length + len(word) + len(line) > maxWidth:\n                for i in range(maxWidth - length):\n                    line[i % (len(line) - 1 or 1)] += ' '\n                result.append(''.join(line))\n                line, length = [], 0\n            line.append(word)\n            length += len(word)\n        result.append(' '.join(line).ljust(maxWidth))\n        return result",
+                    "java": "class Solution {\n    public List<String> fullJustify(String[] words, int maxWidth) {\n        List<String> result = new ArrayList<>();\n        int i = 0;\n        while (i < words.length) {\n            int j = i, len = 0;\n            while (j < words.length && len + words[j].length() + (j - i) <= maxWidth) {\n                len += words[j++].length();\n            }\n            int spaces = maxWidth - len;\n            int gaps = j - i - 1;\n            StringBuilder sb = new StringBuilder();\n            for (int k = i; k < j; k++) {\n                sb.append(words[k]);\n                if (k < j - 1) {\n                    int sp = (j == words.length) ? 1 : (spaces / gaps + (k - i < spaces % gaps ? 1 : 0));\n                    for (int s = 0; s < sp; s++) sb.append(' ');\n                    spaces -= sp;\n                    gaps--;\n                }\n            }\n            while (sb.length() < maxWidth) sb.append(' ');\n            result.add(sb.toString());\n            i = j;\n        }\n        return result;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    vector<string> fullJustify(vector<string>& words, int maxWidth) {\n        vector<string> result;\n        int i = 0;\n        while (i < words.size()) {\n            int j = i, len = 0;\n            while (j < words.size() && len + words[j].size() + (j - i) <= maxWidth) {\n                len += words[j++].size();\n            }\n            int spaces = maxWidth - len;\n            int gaps = j - i - 1;\n            string line;\n            for (int k = i; k < j; k++) {\n                line += words[k];\n                if (k < j - 1) {\n                    int sp = (j == words.size()) ? 1 : (spaces / max(1, gaps) + (k - i < spaces % max(1, gaps) ? 1 : 0));\n                    line += string(sp, ' ');\n                }\n            }\n            line += string(maxWidth - line.size(), ' ');\n            result.push_back(line);\n            i = j;\n        }\n        return result;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Same greedy approach but more efficient space distribution.",
+                "algorithm": "1. Pack words greedily into lines\n2. Calculate total spaces and gaps between words\n3. Distribute extra spaces from left to right\n4. Handle last line specially (left-justified)",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def fullJustify(self, words: List[str], maxWidth: int) -> List[str]:\n        result = []\n        i = 0\n        while i < len(words):\n            line = [words[i]]\n            length = len(words[i])\n            i += 1\n            while i < len(words) and length + 1 + len(words[i]) <= maxWidth:\n                length += 1 + len(words[i])\n                line.append(words[i])\n                i += 1\n            if i == len(words) or len(line) == 1:\n                result.append(' '.join(line).ljust(maxWidth))\n            else:\n                total_spaces = maxWidth - sum(len(w) for w in line)\n                gaps = len(line) - 1\n                space_per_gap = total_spaces // gaps\n                extra = total_spaces % gaps\n                s = ''\n                for j, word in enumerate(line[:-1]):\n                    s += word + ' ' * (space_per_gap + (1 if j < extra else 0))\n                s += line[-1]\n                result.append(s)\n        return result",
+                    "java": "class Solution {\n    public List<String> fullJustify(String[] words, int maxWidth) {\n        List<String> result = new ArrayList<>();\n        int i = 0;\n        while (i < words.length) {\n            List<String> line = new ArrayList<>();\n            int length = words[i].length();\n            line.add(words[i++]);\n            while (i < words.length && length + 1 + words[i].length() <= maxWidth) {\n                length += 1 + words[i].length();\n                line.add(words[i++]);\n            }\n            StringBuilder sb = new StringBuilder();\n            if (i == words.length || line.size() == 1) {\n                sb.append(String.join(\" \", line));\n                while (sb.length() < maxWidth) sb.append(' ');\n            } else {\n                int totalSpaces = maxWidth - line.stream().mapToInt(String::length).sum();\n                int gaps = line.size() - 1;\n                int spacePerGap = totalSpaces / gaps;\n                int extra = totalSpaces % gaps;\n                for (int j = 0; j < line.size() - 1; j++) {\n                    sb.append(line.get(j));\n                    for (int k = 0; k < spacePerGap + (j < extra ? 1 : 0); k++) sb.append(' ');\n                }\n                sb.append(line.get(line.size() - 1));\n            }\n            result.add(sb.toString());\n        }\n        return result;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    vector<string> fullJustify(vector<string>& words, int maxWidth) {\n        vector<string> result;\n        int i = 0;\n        while (i < words.size()) {\n            vector<string> line = {words[i]};\n            int length = words[i++].size();\n            while (i < words.size() && length + 1 + words[i].size() <= maxWidth) {\n                length += 1 + words[i].size();\n                line.push_back(words[i++]);\n            }\n            string s;\n            if (i == words.size() || line.size() == 1) {\n                for (int j = 0; j < line.size(); j++) {\n                    if (j > 0) s += ' ';\n                    s += line[j];\n                }\n                s += string(maxWidth - s.size(), ' ');\n            } else {\n                int totalLen = 0;\n                for (auto& w : line) totalLen += w.size();\n                int totalSpaces = maxWidth - totalLen;\n                int gaps = line.size() - 1;\n                int spacePerGap = totalSpaces / gaps;\n                int extra = totalSpaces % gaps;\n                for (int j = 0; j < line.size() - 1; j++) {\n                    s += line[j] + string(spacePerGap + (j < extra ? 1 : 0), ' ');\n                }\n                s += line.back();\n            }\n            result.push_back(s);\n        }\n        return result;\n    }\n};"
+                }
+            }
+        }
+    }
+]

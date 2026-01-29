@@ -1,0 +1,157 @@
+[
+    {
+        "slug": "two-sum",
+        "solutions": {
+            "brute": {
+                "intuition": "Check every pair of numbers to see if they sum to target. For each element, iterate through all other elements to find a complement.",
+                "algorithm": "1. Use two nested loops\n2. For each element at index i, check all elements at index j > i\n3. If nums[i] + nums[j] equals target, return [i, j]\n4. Continue until a valid pair is found",
+                "complexity": {
+                    "time": "O(n²)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\n        n = len(nums)\n        for i in range(n):\n            for j in range(i + 1, n):\n                if nums[i] + nums[j] == target:\n                    return [i, j]\n        return []",
+                    "java": "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        int n = nums.length;\n        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                if (nums[i] + nums[j] == target) {\n                    return new int[]{i, j};\n                }\n            }\n        }\n        return new int[]{};\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        int n = nums.size();\n        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                if (nums[i] + nums[j] == target) {\n                    return {i, j};\n                }\n            }\n        }\n        return {};\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Use a hash map to store each number's index. For each number, check if its complement (target - num) already exists in the map.",
+                "algorithm": "1. Create an empty hash map\n2. Iterate through the array\n3. Calculate complement = target - nums[i]\n4. If complement exists in map, return [map[complement], i]\n5. Otherwise, store nums[i] -> i in map",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\n        prevMap = {}\n        for i, n in enumerate(nums):\n            diff = target - n\n            if diff in prevMap:\n                return [prevMap[diff], i]\n            prevMap[n] = i\n        return []",
+                    "java": "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        Map<Integer, Integer> map = new HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            int complement = target - nums[i];\n            if (map.containsKey(complement)) {\n                return new int[]{map.get(complement), i};\n            }\n            map.put(nums[i], i);\n        }\n        return new int[]{};\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        unordered_map<int, int> map;\n        for (int i = 0; i < nums.size(); i++) {\n            int complement = target - nums[i];\n            if (map.count(complement)) {\n                return {map[complement], i};\n            }\n            map[nums[i]] = i;\n        }\n        return {};\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "valid-anagram",
+        "solutions": {
+            "brute": {
+                "intuition": "Sort both strings and compare. Anagrams will have identical sorted representations.",
+                "algorithm": "1. Check if lengths are equal\n2. Sort both strings\n3. Compare sorted strings character by character\n4. Return true if they match",
+                "complexity": {
+                    "time": "O(n log n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def isAnagram(self, s: str, t: str) -> bool:\n        if len(s) != len(t):\n            return False\n        return sorted(s) == sorted(t)",
+                    "java": "class Solution {\n    public boolean isAnagram(String s, String t) {\n        if (s.length() != t.length()) return false;\n        char[] sArr = s.toCharArray();\n        char[] tArr = t.toCharArray();\n        Arrays.sort(sArr);\n        Arrays.sort(tArr);\n        return Arrays.equals(sArr, tArr);\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    bool isAnagram(string s, string t) {\n        if (s.length() != t.length()) return false;\n        sort(s.begin(), s.end());\n        sort(t.begin(), t.end());\n        return s == t;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Count character frequencies using an array of size 26. Increment for s, decrement for t. All counts should be zero for anagrams.",
+                "algorithm": "1. Check if lengths are equal\n2. Create frequency array of size 26\n3. For each character: increment count for s, decrement for t\n4. Check if all counts are zero",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def isAnagram(self, s: str, t: str) -> bool:\n        if len(s) != len(t):\n            return False\n        count = [0] * 26\n        for i in range(len(s)):\n            count[ord(s[i]) - ord('a')] += 1\n            count[ord(t[i]) - ord('a')] -= 1\n        return all(c == 0 for c in count)",
+                    "java": "class Solution {\n    public boolean isAnagram(String s, String t) {\n        if (s.length() != t.length()) return false;\n        int[] count = new int[26];\n        for (int i = 0; i < s.length(); i++) {\n            count[s.charAt(i) - 'a']++;\n            count[t.charAt(i) - 'a']--;\n        }\n        for (int c : count) {\n            if (c != 0) return false;\n        }\n        return true;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    bool isAnagram(string s, string t) {\n        if (s.length() != t.length()) return false;\n        vector<int> count(26, 0);\n        for (int i = 0; i < s.length(); i++) {\n            count[s[i] - 'a']++;\n            count[t[i] - 'a']--;\n        }\n        for (int c : count) {\n            if (c != 0) return false;\n        }\n        return true;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "contains-duplicate",
+        "solutions": {
+            "brute": {
+                "intuition": "Compare every element with every other element to find duplicates.",
+                "algorithm": "1. Use nested loops\n2. For each element at i, check all elements at j > i\n3. If nums[i] equals nums[j], return true\n4. Return false if no duplicates found",
+                "complexity": {
+                    "time": "O(n²)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def containsDuplicate(self, nums: List[int]) -> bool:\n        n = len(nums)\n        for i in range(n):\n            for j in range(i + 1, n):\n                if nums[i] == nums[j]:\n                    return True\n        return False",
+                    "java": "class Solution {\n    public boolean containsDuplicate(int[] nums) {\n        int n = nums.length;\n        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                if (nums[i] == nums[j]) return true;\n            }\n        }\n        return false;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    bool containsDuplicate(vector<int>& nums) {\n        int n = nums.size();\n        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                if (nums[i] == nums[j]) return true;\n            }\n        }\n        return false;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Use a HashSet to track seen elements. If we encounter an element already in the set, we found a duplicate.",
+                "algorithm": "1. Create an empty HashSet\n2. Iterate through the array\n3. If current element is in set, return true\n4. Add current element to set\n5. Return false if loop completes",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def containsDuplicate(self, nums: List[int]) -> bool:\n        seen = set()\n        for num in nums:\n            if num in seen:\n                return True\n            seen.add(num)\n        return False",
+                    "java": "class Solution {\n    public boolean containsDuplicate(int[] nums) {\n        Set<Integer> seen = new HashSet<>();\n        for (int num : nums) {\n            if (seen.contains(num)) return true;\n            seen.add(num);\n        }\n        return false;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    bool containsDuplicate(vector<int>& nums) {\n        unordered_set<int> seen;\n        for (int num : nums) {\n            if (seen.count(num)) return true;\n            seen.insert(num);\n        }\n        return false;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "product-of-array-except-self",
+        "solutions": {
+            "brute": {
+                "intuition": "For each element, calculate the product of all other elements using nested loops.",
+                "algorithm": "1. Create result array\n2. For each index i, multiply all elements except nums[i]\n3. Store product in result[i]",
+                "complexity": {
+                    "time": "O(n²)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def productExceptSelf(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        result = [1] * n\n        for i in range(n):\n            for j in range(n):\n                if i != j:\n                    result[i] *= nums[j]\n        return result",
+                    "java": "class Solution {\n    public int[] productExceptSelf(int[] nums) {\n        int n = nums.length;\n        int[] result = new int[n];\n        Arrays.fill(result, 1);\n        for (int i = 0; i < n; i++) {\n            for (int j = 0; j < n; j++) {\n                if (i != j) result[i] *= nums[j];\n            }\n        }\n        return result;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    vector<int> productExceptSelf(vector<int>& nums) {\n        int n = nums.size();\n        vector<int> result(n, 1);\n        for (int i = 0; i < n; i++) {\n            for (int j = 0; j < n; j++) {\n                if (i != j) result[i] *= nums[j];\n            }\n        }\n        return result;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Use prefix and suffix products. For each position, the answer is prefix product (all elements before) times suffix product (all elements after).",
+                "algorithm": "1. First pass: calculate prefix products and store in result\n2. Second pass: multiply by suffix products from right to left\n3. Use a running variable for suffix to achieve O(1) extra space",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def productExceptSelf(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        result = [1] * n\n        prefix = 1\n        for i in range(n):\n            result[i] = prefix\n            prefix *= nums[i]\n        suffix = 1\n        for i in range(n - 1, -1, -1):\n            result[i] *= suffix\n            suffix *= nums[i]\n        return result",
+                    "java": "class Solution {\n    public int[] productExceptSelf(int[] nums) {\n        int n = nums.length;\n        int[] result = new int[n];\n        int prefix = 1;\n        for (int i = 0; i < n; i++) {\n            result[i] = prefix;\n            prefix *= nums[i];\n        }\n        int suffix = 1;\n        for (int i = n - 1; i >= 0; i--) {\n            result[i] *= suffix;\n            suffix *= nums[i];\n        }\n        return result;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    vector<int> productExceptSelf(vector<int>& nums) {\n        int n = nums.size();\n        vector<int> result(n, 1);\n        int prefix = 1;\n        for (int i = 0; i < n; i++) {\n            result[i] = prefix;\n            prefix *= nums[i];\n        }\n        int suffix = 1;\n        for (int i = n - 1; i >= 0; i--) {\n            result[i] *= suffix;\n            suffix *= nums[i];\n        }\n        return result;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "sort-colors",
+        "solutions": {
+            "brute": {
+                "intuition": "Count occurrences of each color (0, 1, 2), then overwrite the array with the correct number of each color.",
+                "algorithm": "1. Count occurrences of 0s, 1s, and 2s\n2. Overwrite array: first count0 zeros, then count1 ones, then count2 twos",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def sortColors(self, nums: List[int]) -> None:\n        count = [0, 0, 0]\n        for num in nums:\n            count[num] += 1\n        idx = 0\n        for color in range(3):\n            for _ in range(count[color]):\n                nums[idx] = color\n                idx += 1",
+                    "java": "class Solution {\n    public void sortColors(int[] nums) {\n        int[] count = new int[3];\n        for (int num : nums) count[num]++;\n        int idx = 0;\n        for (int color = 0; color < 3; color++) {\n            for (int i = 0; i < count[color]; i++) {\n                nums[idx++] = color;\n            }\n        }\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    void sortColors(vector<int>& nums) {\n        int count[3] = {0};\n        for (int num : nums) count[num]++;\n        int idx = 0;\n        for (int color = 0; color < 3; color++) {\n            for (int i = 0; i < count[color]; i++) {\n                nums[idx++] = color;\n            }\n        }\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Dutch National Flag algorithm: use three pointers to partition array into sections for 0s, 1s, and 2s in a single pass.",
+                "algorithm": "1. Initialize low=0, mid=0, high=n-1\n2. While mid <= high:\n   - If nums[mid]==0: swap with low, increment both\n   - If nums[mid]==1: just increment mid\n   - If nums[mid]==2: swap with high, decrement high",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def sortColors(self, nums: List[int]) -> None:\n        low, mid, high = 0, 0, len(nums) - 1\n        while mid <= high:\n            if nums[mid] == 0:\n                nums[low], nums[mid] = nums[mid], nums[low]\n                low += 1\n                mid += 1\n            elif nums[mid] == 1:\n                mid += 1\n            else:\n                nums[mid], nums[high] = nums[high], nums[mid]\n                high -= 1",
+                    "java": "class Solution {\n    public void sortColors(int[] nums) {\n        int low = 0, mid = 0, high = nums.length - 1;\n        while (mid <= high) {\n            if (nums[mid] == 0) {\n                swap(nums, low++, mid++);\n            } else if (nums[mid] == 1) {\n                mid++;\n            } else {\n                swap(nums, mid, high--);\n            }\n        }\n    }\n    private void swap(int[] nums, int i, int j) {\n        int temp = nums[i];\n        nums[i] = nums[j];\n        nums[j] = temp;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    void sortColors(vector<int>& nums) {\n        int low = 0, mid = 0, high = nums.size() - 1;\n        while (mid <= high) {\n            if (nums[mid] == 0) {\n                swap(nums[low++], nums[mid++]);\n            } else if (nums[mid] == 1) {\n                mid++;\n            } else {\n                swap(nums[mid], nums[high--]);\n            }\n        }\n    }\n};"
+                }
+            }
+        }
+    }
+]

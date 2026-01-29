@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  progress UserProgress[]
+}
+
+model DSATopic {
+  id        String      @id @default(uuid())
+  slug      String      @unique
+  title     String
+  order     Int
+  lessons   DSALesson[]
+  createdAt DateTime    @default(now())
+
+  @@map("DSATopic")
+}
+
+model DSALesson {
+  id           String   @id @default(uuid())
+  topicId      String
+  topic        DSATopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  slug         String   @unique
+  title        String
+  content      String   @db.Text
+  codeExamples Json?
+  difficulty   String?
+  order        Int
+  createdAt    DateTime @default(now())
+
+  @@map("DSALesson")
+  @@index([topicId])
+}
+
+model Problem {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  difficulty  String
+  description String   @db.Text
+  examples    Json
+  constraints String[]
+  starterCode Json
+  solution    Json?
+  pattern     String
+  sheet       String
+  order       Int
+  createdAt   DateTime @default(now())
+
+  progress UserProgress[]
+}
+
+model UserProgress {
+  id        String @id @default(uuid())
+  userId    String
+  problemId String
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  status      String
+  lastAttempt DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, problemId])
+  @@index([userId])
+  @@index([problemId])
+}

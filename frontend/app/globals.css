@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* Extended Colors for "Aceternity" vibe */
+  --color-brand-primary: #3b82f6;
+  --color-brand-secondary: #8b5cf6;
+  --color-brand-accent: #ec4899;
+}
+
+:root {
+  --background: #020617; /* Slate 950 - Deeper black */
+  --foreground: #f8fafc;
+  --primary: #3b82f6;
+}
+
+@layer base {
+  body {
+    @apply bg-(--background) text-(--foreground) antialiased selection:bg-blue-500/30;
+  }
+}
+
+/* --- Utilities for Modern Effects --- */
+
+/* Dot Background Pattern */
+.bg-dot-white\/\[0\.2\] {
+  background-image: radial-gradient(#ffffff33 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Spotlight Animation */
+@keyframes spotlight {
+  0% { opacity: 0; transform: translate(-72%, -62%) scale(0.5); }
+  100% { opacity: 1; transform: translate(-50%,-40%) scale(1); }
+}
+
+.animate-spotlight {
+  animation: spotlight 2s ease .75s 1 forwards;
+}
+
+/* Shimmer Button Animation */
+@keyframes shimmer {
+  from { background-position: 0 0; }
+  to { background-position: -200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(to right, #4f4f4f 0%, #1a1a1a 10%, #4f4f4f 20%);
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+/* Infinite Scroll */
+@keyframes scroll {
+  to { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: scroll 40s linear infinite;
+}
+
+.pause-animation:hover {
+  animation-play-state: paused;
+}
+
+/* Glow Utilities */
+.shadow-glow-blue {
+  box-shadow: 0 0 40px -10px rgba(59, 130, 246, 0.3);
+}
+
+/* Glass Card Utility */com
+.glass-card {
+  @apply bg-white/5 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-all duration-300;
+}
+
+/* Radial Gradient Mask */
+.mask-radial-gradient {
+  mask-image: radial-gradient(ellipse at center, transparent 20%, black);
+  -webkit-mask-image: radial-gradient(ellipse at center, transparent 20%, black);
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 1s ease-out forwards;
+}
+
+/* Problem Description Content Styling */
+.problem-content p {
+  @apply mb-3 text-slate-300 leading-relaxed;
+}
+
+.problem-content code {
+  @apply bg-slate-800 px-1.5 py-0.5 rounded text-sm text-blue-400 font-mono;
+}
+
+.problem-content strong {
+  @apply text-white font-semibold;
+}
+
+.problem-content em {
+  @apply text-slate-200 italic;
+}
+
+.problem-content ul, .problem-content ol {
+  @apply my-3 ml-6 space-y-2;
+}
+
+.problem-content ul {
+  @apply list-disc;
+}
+
+.problem-content ol {
+  @apply list-decimal;
+}
+
+.problem-content li {
+  @apply text-slate-300;
+}
+
+.problem-content pre {
+  @apply bg-slate-900 p-3 rounded my-3 overflow-x-auto text-sm;
+}
+
+.problem-content h3, .problem-content h4 {
+  @apply text-white font-semibold mt-4 mb-2;
+}
+
+.problem-content sup, .problem-content sub {
+  @apply text-xs;
+}
+
+.problem-content a {
+  @apply text-blue-400 hover:text-blue-300 underline;
+}

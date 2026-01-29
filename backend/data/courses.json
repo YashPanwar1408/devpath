@@ -1,0 +1,582 @@
+{
+  "courses": [
+    {
+      "id": "html",
+      "name": "HTML",
+      "icon": "🌐",
+      "description": "Learn the fundamentals of HTML - the backbone of web development",
+      "topics": [
+        {
+          "id": "html-basics",
+          "name": "HTML Basics",
+          "lessons": [
+            {
+              "id": "html-intro",
+              "title": "Introduction to HTML",
+              "content": "HTML (HyperText Markup Language) is the standard markup language for creating web pages. It describes the structure of a web page semantically and provides a means to create structured documents.",
+              "keyPoints": [
+                "HTML stands for HyperText Markup Language",
+                "HTML is the standard markup language for Web pages",
+                "HTML elements are the building blocks of HTML pages",
+                "HTML elements are represented by tags"
+              ],
+              "codeExample": {
+                "title": "Basic HTML Structure",
+                "code": "<!DOCTYPE html>\n<html>\n<head>\n  <title>My First Page</title>\n</head>\n<body>\n  <h1>Hello World!</h1>\n  <p>This is my first HTML page.</p>\n</body>\n</html>",
+                "language": "html"
+              },
+              "quiz": {
+                "question": "What does HTML stand for?",
+                "options": [
+                  "Hyper Text Markup Language",
+                  "High Tech Modern Language",
+                  "Home Tool Markup Language",
+                  "Hyperlinks and Text Markup Language"
+                ],
+                "correctAnswer": 0
+              }
+            },
+            {
+              "id": "html-elements",
+              "title": "HTML Elements and Tags",
+              "content": "HTML elements are defined by tags. Most HTML elements have an opening tag and a closing tag with content in between. Tags are keywords surrounded by angle brackets.",
+              "keyPoints": [
+                "Tags usually come in pairs: opening and closing",
+                "Content goes between the tags",
+                "Some tags are self-closing",
+                "Tags can have attributes"
+              ],
+              "codeExample": {
+                "title": "Common HTML Elements",
+                "code": "<!-- Headings -->\n<h1>Main Heading</h1>\n<h2>Subheading</h2>\n\n<!-- Paragraph -->\n<p>This is a paragraph.</p>\n\n<!-- Link -->\n<a href=\"https://example.com\">Click here</a>\n\n<!-- Image -->\n<img src=\"image.jpg\" alt=\"Description\">\n\n<!-- List -->\n<ul>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ul>",
+                "language": "html"
+              },
+              "quiz": {
+                "question": "Which tag is used to create a hyperlink?",
+                "options": ["<link>", "<a>", "<href>", "<url>"],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "html-forms",
+          "name": "HTML Forms",
+          "lessons": [
+            {
+              "id": "form-basics",
+              "title": "Creating Forms",
+              "content": "HTML forms are used to collect user input. The <form> element is a container for different types of input elements like text fields, checkboxes, radio buttons, submit buttons, etc.",
+              "keyPoints": [
+                "Forms are created using the <form> tag",
+                "Input elements collect user data",
+                "Forms can be submitted to a server",
+                "Different input types serve different purposes"
+              ],
+              "codeExample": {
+                "title": "Basic Form Example",
+                "code": "<form action=\"/submit\" method=\"POST\">\n  <label for=\"name\">Name:</label>\n  <input type=\"text\" id=\"name\" name=\"name\" required>\n  \n  <label for=\"email\">Email:</label>\n  <input type=\"email\" id=\"email\" name=\"email\" required>\n  \n  <label for=\"message\">Message:</label>\n  <textarea id=\"message\" name=\"message\"></textarea>\n  \n  <button type=\"submit\">Submit</button>\n</form>",
+                "language": "html"
+              },
+              "quiz": {
+                "question": "Which attribute specifies where to send form data?",
+                "options": ["method", "action", "target", "submit"],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "css",
+      "name": "CSS",
+      "icon": "🎨",
+      "description": "Master Cascading Style Sheets to design beautiful web pages",
+      "topics": [
+        {
+          "id": "css-basics",
+          "name": "CSS Basics",
+          "lessons": [
+            {
+              "id": "css-intro",
+              "title": "Introduction to CSS",
+              "content": "CSS (Cascading Style Sheets) is used to style and layout web pages. It controls colors, fonts, spacing, and positioning of HTML elements.",
+              "keyPoints": [
+                "CSS stands for Cascading Style Sheets",
+                "CSS describes how HTML elements are displayed",
+                "CSS can be inline, internal, or external",
+                "Selectors target HTML elements to style"
+              ],
+              "codeExample": {
+                "title": "CSS Syntax",
+                "code": "/* Selector and Declaration */\nh1 {\n  color: blue;\n  font-size: 24px;\n  text-align: center;\n}\n\n/* Class Selector */\n.container {\n  width: 80%;\n  margin: 0 auto;\n  padding: 20px;\n}\n\n/* ID Selector */\n#header {\n  background-color: #333;\n  color: white;\n}",
+                "language": "css"
+              },
+              "quiz": {
+                "question": "What does CSS stand for?",
+                "options": [
+                  "Computer Style Sheets",
+                  "Cascading Style Sheets",
+                  "Creative Style Sheets",
+                  "Colorful Style Sheets"
+                ],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "css-flexbox",
+          "name": "Flexbox",
+          "lessons": [
+            {
+              "id": "flexbox-intro",
+              "title": "Introduction to Flexbox",
+              "content": "Flexbox is a one-dimensional layout method for arranging items in rows or columns. It makes it easier to design flexible responsive layout structures.",
+              "keyPoints": [
+                "Flexbox is a layout model",
+                "Items can be aligned and distributed",
+                "Works in one dimension at a time",
+                "Great for responsive designs"
+              ],
+              "codeExample": {
+                "title": "Flexbox Example",
+                "code": ".container {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  gap: 20px;\n}\n\n.item {\n  flex: 1;\n  padding: 10px;\n  background-color: #f0f0f0;\n}",
+                "language": "css"
+              },
+              "quiz": {
+                "question": "Which property is used to enable flexbox?",
+                "options": ["display: flex", "flex: true", "flexbox: on", "layout: flex"],
+                "correctAnswer": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "javascript",
+      "name": "JavaScript",
+      "icon": "📜",
+      "description": "Learn JavaScript to make your websites interactive and dynamic",
+      "topics": [
+        {
+          "id": "js-basics",
+          "name": "JavaScript Basics",
+          "lessons": [
+            {
+              "id": "js-variables",
+              "title": "Variables and Data Types",
+              "content": "Variables are containers for storing data values. JavaScript has different data types including numbers, strings, booleans, objects, and more.",
+              "keyPoints": [
+                "Use let and const to declare variables",
+                "const creates a constant reference",
+                "JavaScript has dynamic typing",
+                "Data types include: string, number, boolean, object, undefined, null"
+              ],
+              "codeExample": {
+                "title": "Variable Declaration",
+                "code": "// Variables\nlet name = 'John';\nconst age = 25;\nlet isStudent = true;\n\n// Data Types\nlet number = 42;           // Number\nlet text = 'Hello';        // String\nlet isTrue = false;        // Boolean\nlet nothing = null;        // Null\nlet notDefined;            // Undefined\nlet person = {             // Object\n  name: 'John',\n  age: 25\n};",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "Which keyword creates a constant variable?",
+                "options": ["var", "let", "const", "constant"],
+                "correctAnswer": 2
+              }
+            },
+            {
+              "id": "js-functions",
+              "title": "Functions",
+              "content": "Functions are reusable blocks of code that perform specific tasks. They can take parameters and return values.",
+              "keyPoints": [
+                "Functions are defined using the function keyword",
+                "Arrow functions provide a shorter syntax",
+                "Functions can take parameters",
+                "Functions can return values"
+              ],
+              "codeExample": {
+                "title": "Function Examples",
+                "code": "// Function Declaration\nfunction greet(name) {\n  return `Hello, ${name}!`;\n}\n\n// Arrow Function\nconst add = (a, b) => a + b;\n\n// Function with Default Parameters\nfunction multiply(a, b = 1) {\n  return a * b;\n}\n\n// Usage\nconsole.log(greet('John'));  // Hello, John!\nconsole.log(add(5, 3));      // 8\nconsole.log(multiply(5));    // 5",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What is the correct syntax for an arrow function?",
+                "options": [
+                  "function => {}",
+                  "() => {}",
+                  "=> function()",
+                  "arrow function()"
+                ],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "js-async",
+          "name": "Async JavaScript",
+          "lessons": [
+            {
+              "id": "promises",
+              "title": "Promises and Async/Await",
+              "content": "Promises represent the eventual completion or failure of an asynchronous operation. Async/await provides a cleaner way to work with promises.",
+              "keyPoints": [
+                "Promises handle asynchronous operations",
+                "Promises have three states: pending, fulfilled, rejected",
+                "async/await makes async code look synchronous",
+                "try/catch handles errors in async functions"
+              ],
+              "codeExample": {
+                "title": "Async Examples",
+                "code": "// Promise\nconst fetchData = () => {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => {\n      resolve('Data loaded');\n    }, 1000);\n  });\n};\n\n// Async/Await\nasync function getData() {\n  try {\n    const data = await fetchData();\n    console.log(data);\n  } catch (error) {\n    console.error(error);\n  }\n}\n\ngetData();",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What keyword is used with async to wait for a promise?",
+                "options": ["wait", "await", "pause", "delay"],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mern",
+      "name": "MERN Stack",
+      "icon": "⚛️",
+      "description": "Build full-stack applications with MongoDB, Express, React, and Node.js",
+      "topics": [
+        {
+          "id": "mongodb",
+          "name": "MongoDB",
+          "lessons": [
+            {
+              "id": "mongodb-intro",
+              "title": "Introduction to MongoDB",
+              "content": "MongoDB is a NoSQL database that stores data in flexible, JSON-like documents. It's designed for scalability and developer productivity.",
+              "keyPoints": [
+                "MongoDB is a document-oriented database",
+                "Data is stored in BSON format (Binary JSON)",
+                "Collections contain documents",
+                "Flexible schema design"
+              ],
+              "codeExample": {
+                "title": "MongoDB Operations",
+                "code": "// Connect to MongoDB\nconst { MongoClient } = require('mongodb');\nconst client = new MongoClient('mongodb://localhost:27017');\n\n// Insert Document\nconst db = client.db('mydb');\nconst users = db.collection('users');\n\nawait users.insertOne({\n  name: 'John Doe',\n  email: 'john@example.com',\n  age: 25\n});\n\n// Find Documents\nconst user = await users.findOne({ name: 'John Doe' });\n\n// Update Document\nawait users.updateOne(\n  { name: 'John Doe' },\n  { $set: { age: 26 } }\n);",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What format does MongoDB use to store data?",
+                "options": ["XML", "JSON", "BSON", "CSV"],
+                "correctAnswer": 2
+              }
+            }
+          ]
+        },
+        {
+          "id": "expressjs",
+          "name": "Express.js",
+          "lessons": [
+            {
+              "id": "express-intro",
+              "title": "Building APIs with Express",
+              "content": "Express.js is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.",
+              "keyPoints": [
+                "Express simplifies Node.js web development",
+                "Middleware functions process requests",
+                "Routing defines application endpoints",
+                "Built-in support for REST APIs"
+              ],
+              "codeExample": {
+                "title": "Express Server",
+                "code": "const express = require('express');\nconst app = express();\n\n// Middleware\napp.use(express.json());\n\n// Routes\napp.get('/api/users', (req, res) => {\n  res.json({ users: [] });\n});\n\napp.post('/api/users', (req, res) => {\n  const user = req.body;\n  res.status(201).json(user);\n});\n\n// Start Server\napp.listen(3000, () => {\n  console.log('Server running on port 3000');\n});",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What is Express.js?",
+                "options": [
+                  "A database",
+                  "A Node.js framework",
+                  "A programming language",
+                  "A CSS library"
+                ],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "react",
+          "name": "React",
+          "lessons": [
+            {
+              "id": "react-components",
+              "title": "React Components",
+              "content": "React is a JavaScript library for building user interfaces. Components are the building blocks of React applications.",
+              "keyPoints": [
+                "Components are reusable UI pieces",
+                "Functional components use hooks",
+                "Props pass data to components",
+                "State manages component data"
+              ],
+              "codeExample": {
+                "title": "React Component",
+                "code": "import React, { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div>\n      <h1>Count: {count}</h1>\n      <button onClick={() => setCount(count + 1)}>\n        Increment\n      </button>\n      <button onClick={() => setCount(count - 1)}>\n        Decrement\n      </button>\n    </div>\n  );\n}\n\nexport default Counter;",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What hook is used to manage state in functional components?",
+                "options": ["useState", "useEffect", "useContext", "useReducer"],
+                "correctAnswer": 0
+              }
+            }
+          ]
+        },
+        {
+          "id": "nodejs",
+          "name": "Node.js",
+          "lessons": [
+            {
+              "id": "nodejs-intro",
+              "title": "Introduction to Node.js",
+              "content": "Node.js is a JavaScript runtime built on Chrome's V8 engine. It allows you to run JavaScript on the server side.",
+              "keyPoints": [
+                "Node.js runs JavaScript outside the browser",
+                "Event-driven, non-blocking I/O",
+                "NPM is the package manager",
+                "Great for building scalable applications"
+              ],
+              "codeExample": {
+                "title": "Node.js HTTP Server",
+                "code": "const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  res.writeHead(200, { 'Content-Type': 'text/plain' });\n  res.end('Hello from Node.js!');\n});\n\nserver.listen(3000, () => {\n  console.log('Server running on http://localhost:3000');\n});",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What is Node.js?",
+                "options": [
+                  "A JavaScript framework",
+                  "A JavaScript runtime",
+                  "A database",
+                  "A CSS preprocessor"
+                ],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dsa",
+      "name": "Data Structures & Algorithms",
+      "icon": "🧮",
+      "description": "Master data structures and algorithms for technical interviews",
+      "topics": [
+        {
+          "id": "arrays",
+          "name": "Arrays",
+          "lessons": [
+            {
+              "id": "array-basics",
+              "title": "Array Fundamentals",
+              "content": "An array is a collection of elements stored at contiguous memory locations. Arrays provide O(1) access time by index and are fundamental to many algorithms.",
+              "keyPoints": [
+                "Fixed size in most languages",
+                "O(1) access by index",
+                "Contiguous memory allocation",
+                "Cache-friendly data structure"
+              ],
+              "codeExample": {
+                "title": "Array Operations",
+                "code": "// Creating arrays\nconst numbers = [1, 2, 3, 4, 5];\n\n// Accessing elements - O(1)\nconsole.log(numbers[0]); // 1\n\n// Common operations\nnumbers.push(6);           // Add to end - O(1)\nnumbers.pop();             // Remove from end - O(1)\nnumbers.unshift(0);        // Add to start - O(n)\nnumbers.shift();           // Remove from start - O(n)\n\n// Array methods\nconst doubled = numbers.map(n => n * 2);\nconst filtered = numbers.filter(n => n > 2);\nconst sum = numbers.reduce((acc, n) => acc + n, 0);",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What is the time complexity of accessing an array element by index?",
+                "options": ["O(n)", "O(1)", "O(log n)", "O(n²)"],
+                "correctAnswer": 1
+              }
+            },
+            {
+              "id": "two-pointer",
+              "title": "Two Pointer Technique",
+              "content": "The two pointer technique is a common pattern used to solve array problems efficiently. It uses two pointers to traverse the array from different positions.",
+              "keyPoints": [
+                "Uses two pointers moving through array",
+                "Often reduces time complexity",
+                "Common in sorted array problems",
+                "Useful for finding pairs or subarrays"
+              ],
+              "codeExample": {
+                "title": "Two Sum Problem",
+                "code": "// Find two numbers that add up to target\nfunction twoSum(arr, target) {\n  let left = 0;\n  let right = arr.length - 1;\n  \n  while (left < right) {\n    const sum = arr[left] + arr[right];\n    \n    if (sum === target) {\n      return [left, right];\n    } else if (sum < target) {\n      left++;\n    } else {\n      right--;\n    }\n  }\n  \n  return [-1, -1];\n}\n\n// Example\nconst arr = [1, 2, 3, 4, 6];\nconsole.log(twoSum(arr, 6)); // [1, 3]",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What is the time complexity of the two pointer technique?",
+                "options": ["O(n²)", "O(n log n)", "O(n)", "O(1)"],
+                "correctAnswer": 2
+              }
+            }
+          ]
+        },
+        {
+          "id": "linked-lists",
+          "name": "Linked Lists",
+          "lessons": [
+            {
+              "id": "linked-list-basics",
+              "title": "Introduction to Linked Lists",
+              "content": "A linked list is a linear data structure where elements are stored in nodes. Each node contains data and a reference to the next node.",
+              "keyPoints": [
+                "Dynamic size",
+                "O(1) insertion/deletion at head",
+                "O(n) access by position",
+                "No contiguous memory required"
+              ],
+              "codeExample": {
+                "title": "Linked List Implementation",
+                "code": "class Node {\n  constructor(data) {\n    this.data = data;\n    this.next = null;\n  }\n}\n\nclass LinkedList {\n  constructor() {\n    this.head = null;\n  }\n  \n  // Add node at beginning - O(1)\n  insertAtHead(data) {\n    const newNode = new Node(data);\n    newNode.next = this.head;\n    this.head = newNode;\n  }\n  \n  // Search - O(n)\n  search(data) {\n    let current = this.head;\n    while (current) {\n      if (current.data === data) return true;\n      current = current.next;\n    }\n    return false;\n  }\n}",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What is the time complexity of inserting at the head of a linked list?",
+                "options": ["O(n)", "O(1)", "O(log n)", "O(n²)"],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "trees",
+          "name": "Trees",
+          "lessons": [
+            {
+              "id": "binary-tree",
+              "title": "Binary Trees",
+              "content": "A binary tree is a hierarchical data structure where each node has at most two children (left and right). Binary trees are the foundation for many other data structures.",
+              "keyPoints": [
+                "Each node has at most 2 children",
+                "Root is the topmost node",
+                "Leaves are nodes with no children",
+                "Height is the longest path from root to leaf"
+              ],
+              "codeExample": {
+                "title": "Binary Tree Implementation",
+                "code": "class TreeNode {\n  constructor(val) {\n    this.val = val;\n    this.left = null;\n    this.right = null;\n  }\n}\n\n// Inorder Traversal (Left, Root, Right)\nfunction inorderTraversal(root) {\n  const result = [];\n  \n  function traverse(node) {\n    if (!node) return;\n    traverse(node.left);\n    result.push(node.val);\n    traverse(node.right);\n  }\n  \n  traverse(root);\n  return result;\n}\n\n// Example\nconst root = new TreeNode(1);\nroot.left = new TreeNode(2);\nroot.right = new TreeNode(3);",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "In inorder traversal, what is the order of visiting nodes?",
+                "options": [
+                  "Root, Left, Right",
+                  "Left, Root, Right",
+                  "Left, Right, Root",
+                  "Right, Root, Left"
+                ],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "sorting",
+          "name": "Sorting Algorithms",
+          "lessons": [
+            {
+              "id": "bubble-sort",
+              "title": "Bubble Sort",
+              "content": "Bubble Sort is a simple sorting algorithm that repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.",
+              "keyPoints": [
+                "Simple but inefficient",
+                "Time Complexity: O(n²)",
+                "Space Complexity: O(1)",
+                "Stable sorting algorithm"
+              ],
+              "codeExample": {
+                "title": "Bubble Sort Implementation",
+                "code": "function bubbleSort(arr) {\n  const n = arr.length;\n  \n  for (let i = 0; i < n - 1; i++) {\n    let swapped = false;\n    \n    for (let j = 0; j < n - i - 1; j++) {\n      if (arr[j] > arr[j + 1]) {\n        // Swap\n        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];\n        swapped = true;\n      }\n    }\n    \n    // If no swaps, array is sorted\n    if (!swapped) break;\n  }\n  \n  return arr;\n}\n\n// Example\nconst arr = [64, 34, 25, 12, 22];\nconsole.log(bubbleSort(arr));",
+                "language": "javascript"
+              },
+              "quiz": {
+                "question": "What is the time complexity of Bubble Sort?",
+                "options": ["O(n)", "O(n log n)", "O(n²)", "O(log n)"],
+                "correctAnswer": 2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ai",
+      "name": "Artificial Intelligence",
+      "icon": "🤖",
+      "description": "Explore machine learning and AI concepts",
+      "topics": [
+        {
+          "id": "ml-basics",
+          "name": "Machine Learning Basics",
+          "lessons": [
+            {
+              "id": "ml-intro",
+              "title": "Introduction to Machine Learning",
+              "content": "Machine Learning is a subset of AI that enables systems to learn and improve from experience without being explicitly programmed. It focuses on the development of computer programs that can access data and use it to learn for themselves.",
+              "keyPoints": [
+                "ML learns patterns from data",
+                "Three types: Supervised, Unsupervised, Reinforcement",
+                "Models improve with more data",
+                "Used in predictions and classifications"
+              ],
+              "codeExample": {
+                "title": "Simple Linear Regression",
+                "code": "# Python example using scikit-learn\nfrom sklearn.linear_model import LinearRegression\nimport numpy as np\n\n# Training data\nX = np.array([[1], [2], [3], [4], [5]])\ny = np.array([2, 4, 6, 8, 10])\n\n# Create and train model\nmodel = LinearRegression()\nmodel.fit(X, y)\n\n# Make prediction\nprediction = model.predict([[6]])\nprint(f'Prediction: {prediction}')  # 12\n\n# Model parameters\nprint(f'Slope: {model.coef_[0]}')\nprint(f'Intercept: {model.intercept_}')  ",
+                "language": "python"
+              },
+              "quiz": {
+                "question": "What are the three main types of machine learning?",
+                "options": [
+                  "Fast, Medium, Slow",
+                  "Supervised, Unsupervised, Reinforcement",
+                  "Simple, Complex, Advanced",
+                  "Manual, Semi-automatic, Automatic"
+                ],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        },
+        {
+          "id": "neural-networks",
+          "name": "Neural Networks",
+          "lessons": [
+            {
+              "id": "nn-intro",
+              "title": "Introduction to Neural Networks",
+              "content": "Neural Networks are computing systems inspired by biological neural networks. They consist of interconnected nodes (neurons) organized in layers that process information.",
+              "keyPoints": [
+                "Inspired by human brain",
+                "Consists of input, hidden, and output layers",
+                "Uses activation functions",
+                "Trained using backpropagation"
+              ],
+              "codeExample": {
+                "title": "Simple Neural Network",
+                "code": "# Python example using TensorFlow\nimport tensorflow as tf\nfrom tensorflow import keras\n\n# Create model\nmodel = keras.Sequential([\n    keras.layers.Dense(64, activation='relu', input_shape=(10,)),\n    keras.layers.Dense(32, activation='relu'),\n    keras.layers.Dense(1, activation='sigmoid')\n])\n\n# Compile model\nmodel.compile(\n    optimizer='adam',\n    loss='binary_crossentropy',\n    metrics=['accuracy']\n)\n\n# Model summary\nmodel.summary()",
+                "language": "python"
+              },
+              "quiz": {
+                "question": "What algorithm is commonly used to train neural networks?",
+                "options": ["Forward propagation", "Backpropagation", "Side propagation", "Cross propagation"],
+                "correctAnswer": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

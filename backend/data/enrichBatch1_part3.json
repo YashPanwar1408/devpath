@@ -1,0 +1,157 @@
+[
+    {
+        "slug": "naming-a-company",
+        "solutions": {
+            "brute": {
+                "intuition": "Try all pairs of names and check if swapped first letters create two new valid names.",
+                "algorithm": "1. For each pair of ideas (i, j)\n2. Create new names by swapping first letters\n3. Check if both new names don't exist in original set\n4. Count valid pairs",
+                "complexity": {
+                    "time": "O(n² * m)",
+                    "space": "O(n * m)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def distinctNames(self, ideas: List[str]) -> int:\n        idea_set = set(ideas)\n        count = 0\n        for i in range(len(ideas)):\n            for j in range(i + 1, len(ideas)):\n                a, b = ideas[i], ideas[j]\n                new_a = b[0] + a[1:]\n                new_b = a[0] + b[1:]\n                if new_a not in idea_set and new_b not in idea_set:\n                    count += 2\n        return count",
+                    "java": "class Solution {\n    public long distinctNames(String[] ideas) {\n        Set<String> set = new HashSet<>(Arrays.asList(ideas));\n        long count = 0;\n        for (int i = 0; i < ideas.length; i++) {\n            for (int j = i + 1; j < ideas.length; j++) {\n                String a = ideas[i], b = ideas[j];\n                String newA = b.charAt(0) + a.substring(1);\n                String newB = a.charAt(0) + b.substring(1);\n                if (!set.contains(newA) && !set.contains(newB)) count += 2;\n            }\n        }\n        return count;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    long long distinctNames(vector<string>& ideas) {\n        unordered_set<string> s(ideas.begin(), ideas.end());\n        long long count = 0;\n        for (int i = 0; i < ideas.size(); i++) {\n            for (int j = i + 1; j < ideas.size(); j++) {\n                string a = ideas[i], b = ideas[j];\n                string newA = b[0] + a.substr(1);\n                string newB = a[0] + b.substr(1);\n                if (!s.count(newA) && !s.count(newB)) count += 2;\n            }\n        }\n        return count;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Group words by their first letter. For two groups with different first letters, count words whose suffix doesn't conflict.",
+                "algorithm": "1. Group suffixes by first letter (26 groups)\n2. For each pair of groups (i, j)\n3. Count mutual suffixes between groups\n4. Valid pairs = (size_i - mutual) * (size_j - mutual) * 2",
+                "complexity": {
+                    "time": "O(n * m)",
+                    "space": "O(n * m)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def distinctNames(self, ideas: List[str]) -> int:\n        groups = [set() for _ in range(26)]\n        for idea in ideas:\n            groups[ord(idea[0]) - ord('a')].add(idea[1:])\n        count = 0\n        for i in range(26):\n            for j in range(i + 1, 26):\n                mutual = len(groups[i] & groups[j])\n                count += 2 * (len(groups[i]) - mutual) * (len(groups[j]) - mutual)\n        return count",
+                    "java": "class Solution {\n    public long distinctNames(String[] ideas) {\n        Set<String>[] groups = new HashSet[26];\n        for (int i = 0; i < 26; i++) groups[i] = new HashSet<>();\n        for (String idea : ideas) {\n            groups[idea.charAt(0) - 'a'].add(idea.substring(1));\n        }\n        long count = 0;\n        for (int i = 0; i < 26; i++) {\n            for (int j = i + 1; j < 26; j++) {\n                long mutual = 0;\n                for (String s : groups[i]) {\n                    if (groups[j].contains(s)) mutual++;\n                }\n                count += 2 * (groups[i].size() - mutual) * (groups[j].size() - mutual);\n            }\n        }\n        return count;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    long long distinctNames(vector<string>& ideas) {\n        unordered_set<string> groups[26];\n        for (const string& idea : ideas) {\n            groups[idea[0] - 'a'].insert(idea.substr(1));\n        }\n        long long count = 0;\n        for (int i = 0; i < 26; i++) {\n            for (int j = i + 1; j < 26; j++) {\n                long long mutual = 0;\n                for (const string& s : groups[i]) {\n                    if (groups[j].count(s)) mutual++;\n                }\n                count += 2 * (groups[i].size() - mutual) * (groups[j].size() - mutual);\n            }\n        }\n        return count;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "determine-if-two-strings-are-close",
+        "solutions": {
+            "brute": {
+                "intuition": "Check if two strings can be made equal using character swaps and frequency transformations.",
+                "algorithm": "1. Check if both strings have same length\n2. Check if both have same set of characters\n3. Check if frequency counts (sorted) are identical",
+                "complexity": {
+                    "time": "O(n log n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def closeStrings(self, word1: str, word2: str) -> bool:\n        if len(word1) != len(word2):\n            return False\n        freq1 = [0] * 26\n        freq2 = [0] * 26\n        for c in word1:\n            freq1[ord(c) - ord('a')] += 1\n        for c in word2:\n            freq2[ord(c) - ord('a')] += 1\n        for i in range(26):\n            if (freq1[i] == 0) != (freq2[i] == 0):\n                return False\n        return sorted(freq1) == sorted(freq2)",
+                    "java": "class Solution {\n    public boolean closeStrings(String word1, String word2) {\n        if (word1.length() != word2.length()) return false;\n        int[] freq1 = new int[26], freq2 = new int[26];\n        for (char c : word1.toCharArray()) freq1[c - 'a']++;\n        for (char c : word2.toCharArray()) freq2[c - 'a']++;\n        for (int i = 0; i < 26; i++) {\n            if ((freq1[i] == 0) != (freq2[i] == 0)) return false;\n        }\n        Arrays.sort(freq1);\n        Arrays.sort(freq2);\n        return Arrays.equals(freq1, freq2);\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    bool closeStrings(string word1, string word2) {\n        if (word1.size() != word2.size()) return false;\n        vector<int> freq1(26), freq2(26);\n        for (char c : word1) freq1[c - 'a']++;\n        for (char c : word2) freq2[c - 'a']++;\n        for (int i = 0; i < 26; i++) {\n            if ((freq1[i] == 0) != (freq2[i] == 0)) return false;\n        }\n        sort(freq1.begin(), freq1.end());\n        sort(freq2.begin(), freq2.end());\n        return freq1 == freq2;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Same logic but using sets and multisets for cleaner comparison.",
+                "algorithm": "1. Both must have same character set (operation 2 can't create new chars)\n2. Both must have same multiset of frequencies (operation 2 swaps frequencies)",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def closeStrings(self, word1: str, word2: str) -> bool:\n        from collections import Counter\n        if len(word1) != len(word2):\n            return False\n        c1, c2 = Counter(word1), Counter(word2)\n        return set(c1.keys()) == set(c2.keys()) and sorted(c1.values()) == sorted(c2.values())",
+                    "java": "class Solution {\n    public boolean closeStrings(String word1, String word2) {\n        if (word1.length() != word2.length()) return false;\n        int[] f1 = new int[26], f2 = new int[26];\n        for (char c : word1.toCharArray()) f1[c - 'a']++;\n        for (char c : word2.toCharArray()) f2[c - 'a']++;\n        for (int i = 0; i < 26; i++) {\n            if ((f1[i] > 0) != (f2[i] > 0)) return false;\n        }\n        Arrays.sort(f1);\n        Arrays.sort(f2);\n        return Arrays.equals(f1, f2);\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    bool closeStrings(string word1, string word2) {\n        if (word1.size() != word2.size()) return false;\n        vector<int> f1(26), f2(26);\n        for (char c : word1) f1[c - 'a']++;\n        for (char c : word2) f2[c - 'a']++;\n        for (int i = 0; i < 26; i++) {\n            if ((f1[i] > 0) != (f2[i] > 0)) return false;\n        }\n        sort(f1.begin(), f1.end());\n        sort(f2.begin(), f2.end());\n        return f1 == f2;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "optimal-partition-of-string",
+        "solutions": {
+            "brute": {
+                "intuition": "Try all possible partition positions and find minimum count with unique characters in each part.",
+                "algorithm": "1. Use recursion to try each partition point\n2. Check if current partition has unique characters\n3. Minimize total partitions",
+                "complexity": {
+                    "time": "O(2^n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def partitionString(self, s: str) -> int:\n        def isUnique(sub):\n            return len(sub) == len(set(sub))\n        \n        def solve(start):\n            if start >= len(s):\n                return 0\n            result = float('inf')\n            for end in range(start + 1, len(s) + 1):\n                if isUnique(s[start:end]):\n                    result = min(result, 1 + solve(end))\n            return result\n        return solve(0)",
+                    "java": "class Solution {\n    public int partitionString(String s) {\n        return solve(s, 0);\n    }\n    private int solve(String s, int start) {\n        if (start >= s.length()) return 0;\n        int result = Integer.MAX_VALUE;\n        Set<Character> seen = new HashSet<>();\n        for (int end = start; end < s.length(); end++) {\n            if (seen.contains(s.charAt(end))) break;\n            seen.add(s.charAt(end));\n            result = Math.min(result, 1 + solve(s, end + 1));\n        }\n        return result;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    int partitionString(string s) {\n        return solve(s, 0);\n    }\n    int solve(string& s, int start) {\n        if (start >= s.size()) return 0;\n        int result = INT_MAX;\n        unordered_set<char> seen;\n        for (int end = start; end < s.size(); end++) {\n            if (seen.count(s[end])) break;\n            seen.insert(s[end]);\n            result = min(result, 1 + solve(s, end + 1));\n        }\n        return result;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Greedy: extend current partition until a duplicate is found, then start a new partition.",
+                "algorithm": "1. Start with one partition\n2. Track seen characters in current partition\n3. When duplicate found, start new partition and reset seen set\n4. Return partition count",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def partitionString(self, s: str) -> int:\n        seen = set()\n        count = 1\n        for c in s:\n            if c in seen:\n                count += 1\n                seen.clear()\n            seen.add(c)\n        return count",
+                    "java": "class Solution {\n    public int partitionString(String s) {\n        Set<Character> seen = new HashSet<>();\n        int count = 1;\n        for (char c : s.toCharArray()) {\n            if (seen.contains(c)) {\n                count++;\n                seen.clear();\n            }\n            seen.add(c);\n        }\n        return count;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    int partitionString(string s) {\n        unordered_set<char> seen;\n        int count = 1;\n        for (char c : s) {\n            if (seen.count(c)) {\n                count++;\n                seen.clear();\n            }\n            seen.insert(c);\n        }\n        return count;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "valid-palindrome",
+        "solutions": {
+            "brute": {
+                "intuition": "Clean the string by keeping only alphanumeric characters, then compare with its reverse.",
+                "algorithm": "1. Filter string to keep only alphanumeric characters\n2. Convert to lowercase\n3. Compare with its reverse",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def isPalindrome(self, s: str) -> bool:\n        cleaned = ''.join(c.lower() for c in s if c.isalnum())\n        return cleaned == cleaned[::-1]",
+                    "java": "class Solution {\n    public boolean isPalindrome(String s) {\n        StringBuilder sb = new StringBuilder();\n        for (char c : s.toCharArray()) {\n            if (Character.isLetterOrDigit(c)) {\n                sb.append(Character.toLowerCase(c));\n            }\n        }\n        String cleaned = sb.toString();\n        return cleaned.equals(sb.reverse().toString());\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    bool isPalindrome(string s) {\n        string cleaned;\n        for (char c : s) {\n            if (isalnum(c)) cleaned += tolower(c);\n        }\n        string rev = cleaned;\n        reverse(rev.begin(), rev.end());\n        return cleaned == rev;\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Use two pointers from both ends, skipping non-alphanumeric characters.",
+                "algorithm": "1. Initialize left=0, right=len-1\n2. Skip non-alphanumeric from both ends\n3. Compare characters (case-insensitive)\n4. Move pointers inward\n5. Return true if all comparisons match",
+                "complexity": {
+                    "time": "O(n)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def isPalindrome(self, s: str) -> bool:\n        left, right = 0, len(s) - 1\n        while left < right:\n            while left < right and not s[left].isalnum():\n                left += 1\n            while left < right and not s[right].isalnum():\n                right -= 1\n            if s[left].lower() != s[right].lower():\n                return False\n            left += 1\n            right -= 1\n        return True",
+                    "java": "class Solution {\n    public boolean isPalindrome(String s) {\n        int left = 0, right = s.length() - 1;\n        while (left < right) {\n            while (left < right && !Character.isLetterOrDigit(s.charAt(left))) left++;\n            while (left < right && !Character.isLetterOrDigit(s.charAt(right))) right--;\n            if (Character.toLowerCase(s.charAt(left)) != Character.toLowerCase(s.charAt(right))) {\n                return false;\n            }\n            left++;\n            right--;\n        }\n        return true;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    bool isPalindrome(string s) {\n        int left = 0, right = s.size() - 1;\n        while (left < right) {\n            while (left < right && !isalnum(s[left])) left++;\n            while (left < right && !isalnum(s[right])) right--;\n            if (tolower(s[left]) != tolower(s[right])) return false;\n            left++;\n            right--;\n        }\n        return true;\n    }\n};"
+                }
+            }
+        }
+    },
+    {
+        "slug": "3sum",
+        "solutions": {
+            "brute": {
+                "intuition": "Check all triplets to find those that sum to zero.",
+                "algorithm": "1. Use three nested loops\n2. For each triplet (i, j, k), check if sum is zero\n3. Use a set to avoid duplicates",
+                "complexity": {
+                    "time": "O(n³)",
+                    "space": "O(n)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def threeSum(self, nums: List[int]) -> List[List[int]]:\n        result = set()\n        n = len(nums)\n        nums.sort()\n        for i in range(n):\n            for j in range(i + 1, n):\n                for k in range(j + 1, n):\n                    if nums[i] + nums[j] + nums[k] == 0:\n                        result.add((nums[i], nums[j], nums[k]))\n        return [list(t) for t in result]",
+                    "java": "class Solution {\n    public List<List<Integer>> threeSum(int[] nums) {\n        Set<List<Integer>> result = new HashSet<>();\n        Arrays.sort(nums);\n        int n = nums.length;\n        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                for (int k = j + 1; k < n; k++) {\n                    if (nums[i] + nums[j] + nums[k] == 0) {\n                        result.add(Arrays.asList(nums[i], nums[j], nums[k]));\n                    }\n                }\n            }\n        }\n        return new ArrayList<>(result);\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    vector<vector<int>> threeSum(vector<int>& nums) {\n        set<vector<int>> result;\n        sort(nums.begin(), nums.end());\n        int n = nums.size();\n        for (int i = 0; i < n; i++) {\n            for (int j = i + 1; j < n; j++) {\n                for (int k = j + 1; k < n; k++) {\n                    if (nums[i] + nums[j] + nums[k] == 0) {\n                        result.insert({nums[i], nums[j], nums[k]});\n                    }\n                }\n            }\n        }\n        return vector<vector<int>>(result.begin(), result.end());\n    }\n};"
+                }
+            },
+            "optimized": {
+                "intuition": "Sort array, fix one element, use two pointers for the remaining two elements.",
+                "algorithm": "1. Sort the array\n2. For each element i, use two pointers (left, right) on remaining array\n3. If sum < 0, move left pointer right\n4. If sum > 0, move right pointer left\n5. If sum = 0, add triplet and skip duplicates",
+                "complexity": {
+                    "time": "O(n²)",
+                    "space": "O(1)"
+                },
+                "code": {
+                    "python": "class Solution:\n    def threeSum(self, nums: List[int]) -> List[List[int]]:\n        nums.sort()\n        result = []\n        for i in range(len(nums) - 2):\n            if i > 0 and nums[i] == nums[i - 1]:\n                continue\n            left, right = i + 1, len(nums) - 1\n            while left < right:\n                total = nums[i] + nums[left] + nums[right]\n                if total < 0:\n                    left += 1\n                elif total > 0:\n                    right -= 1\n                else:\n                    result.append([nums[i], nums[left], nums[right]])\n                    while left < right and nums[left] == nums[left + 1]:\n                        left += 1\n                    while left < right and nums[right] == nums[right - 1]:\n                        right -= 1\n                    left += 1\n                    right -= 1\n        return result",
+                    "java": "class Solution {\n    public List<List<Integer>> threeSum(int[] nums) {\n        Arrays.sort(nums);\n        List<List<Integer>> result = new ArrayList<>();\n        for (int i = 0; i < nums.length - 2; i++) {\n            if (i > 0 && nums[i] == nums[i - 1]) continue;\n            int left = i + 1, right = nums.length - 1;\n            while (left < right) {\n                int sum = nums[i] + nums[left] + nums[right];\n                if (sum < 0) left++;\n                else if (sum > 0) right--;\n                else {\n                    result.add(Arrays.asList(nums[i], nums[left], nums[right]));\n                    while (left < right && nums[left] == nums[left + 1]) left++;\n                    while (left < right && nums[right] == nums[right - 1]) right--;\n                    left++;\n                    right--;\n                }\n            }\n        }\n        return result;\n    }\n}",
+                    "cpp": "class Solution {\npublic:\n    vector<vector<int>> threeSum(vector<int>& nums) {\n        sort(nums.begin(), nums.end());\n        vector<vector<int>> result;\n        for (int i = 0; i < (int)nums.size() - 2; i++) {\n            if (i > 0 && nums[i] == nums[i - 1]) continue;\n            int left = i + 1, right = nums.size() - 1;\n            while (left < right) {\n                int sum = nums[i] + nums[left] + nums[right];\n                if (sum < 0) left++;\n                else if (sum > 0) right--;\n                else {\n                    result.push_back({nums[i], nums[left], nums[right]});\n                    while (left < right && nums[left] == nums[left + 1]) left++;\n                    while (left < right && nums[right] == nums[right - 1]) right--;\n                    left++;\n                    right--;\n                }\n            }\n        }\n        return result;\n    }\n};"
+                }
+            }
+        }
+    }
+]
