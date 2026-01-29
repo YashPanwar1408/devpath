@@ -19,6 +19,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   progress UserProgress[] // 👈 ADD THIS
+  submissions Submission[]
 }
 
 model DSATopic {
@@ -80,6 +81,24 @@ model UserProgress {
   createdAt   DateTime @default(now())
 
   @@unique([userId, problemId])
+  @@index([userId])
+  @@index([problemId])
+}
+
+model Submission {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  code      String   @db.Text
+  language  String
+  status    String   // Accepted, Wrong Answer, TLE, Compilation Error
+  runtime   Int?     // ms
+  memory    Int?     // KB
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([problemId])
 }
