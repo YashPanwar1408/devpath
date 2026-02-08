@@ -11,9 +11,8 @@ interface Problem {
   difficulty: string;
   pattern: string;
   order: number;
-  progress: {
-    status: string;
-  } | null;
+  solved: boolean;
+  starred: boolean;
 }
 
 interface ProblemGroupProps {
@@ -21,13 +20,21 @@ interface ProblemGroupProps {
   problems: Problem[];
   category?: string;
   targetCount?: number;
-  onRefresh?: () => void;
+  onToggleSolved: (problemId: string) => void;
+  onToggleStarred: (problemId: string) => void;
 }
 
-export default function ProblemGroup({ pattern, problems, category, targetCount, onRefresh }: ProblemGroupProps) {
+export default function ProblemGroup({ 
+  pattern, 
+  problems, 
+  category, 
+  targetCount,
+  onToggleSolved,
+  onToggleStarred 
+}: ProblemGroupProps) {
   const [isOpen, setIsOpen] = useState(true);
 
-  const solvedCount = problems.filter((p) => p.progress?.status === 'solved').length;
+  const solvedCount = problems.filter(p => p.solved).length;
   const progressPercentage = Math.round((solvedCount / problems.length) * 100);
 
   return (
@@ -58,14 +65,6 @@ export default function ProblemGroup({ pattern, problems, category, targetCount,
             </div>
             <p className="text-sm text-gray-400 mt-1">
               Progress: {solvedCount} / {problems.length}
-              {targetCount && targetCount > problems.length && (
-                <span className="text-amber-400 ml-2">
-                  (Target for 250: {targetCount})
-                </span>
-              )}
-              {targetCount && targetCount === problems.length && (
-                <span className="text-green-400 ml-2">✓ Complete</span>
-              )}
             </p>
           </div>
         </div>
@@ -95,8 +94,13 @@ export default function ProblemGroup({ pattern, problems, category, targetCount,
               </tr>
             </thead>
             <tbody>
-              {problems.map((problem, index) => (
-                <ProblemRow key={problem.id} problem={problem} index={index} onRefresh={onRefresh} />
+              {problems.map((problem) => (
+                <ProblemRow 
+                  key={problem.id} 
+                  problem={problem}
+                  onToggleSolved={onToggleSolved}
+                  onToggleStarred={onToggleStarred}
+                />
               ))}
             </tbody>
           </table>

@@ -8,6 +8,7 @@ import { Panel, Group, Separator } from "react-resizable-panels";
 type Language = "python" | "javascript" | "java" | "cpp";
 
 interface Problem {
+  id: number;
   title: string;
   difficulty: string;
   description: string;
@@ -17,6 +18,19 @@ interface Problem {
     explanation?: string;
   }>;
   constraints: string[];
+  starterCode?: Record<Language, string>;
+}
+
+interface TestResult {
+  input: string;
+  expectedOutput: string;
+  actualOutput: string;
+  passed: boolean;
+  error?: string;
+  executionTime?: number;
+  memoryUsed?: number;
+  isHidden?: boolean;
+  lineNumber?: number;
 }
 
 const LANGS: Record<Language, string> = {
@@ -36,6 +50,9 @@ export default function SolvePage() {
   const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
   const [running, setRunning] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,7 +62,6 @@ export default function SolvePage() {
         const r = await fetch(`http://localhost:5000/api/dsa/problems/${slug}`);
         const j = await r.json();
         if (!cancelled) {
-          // Adjust based on your actual API response structure
           setProblem(j); 
           setCode(j.starterCode?.[language] || "// Write your code here");
         }
@@ -59,7 +75,13 @@ export default function SolvePage() {
     return () => {
       cancelled = true;
     };
-  }, [slug, language]);
+  }, [slug]);
+
+  useEffect(() => {
+    if (problem?.starterCode?.[language]) {
+      setCode(problem.starterCode[language]);
+    }
+  }, [language, problem]);
 
   if (!problem)
     return (
@@ -95,25 +117,121 @@ export default function SolvePage() {
 
         <div className="flex gap-2">
           <button 
-            onClick={() => {
+            onClick={async () => {
+              if (!problem) return;
               setRunning(true);
               setOutput("Running code...");
-              setTimeout(() => {
-                setOutput("✓ Code executed successfully");
+              setShowResults(false);
+              setTestResults([]);
+              
+              try {
+                const response = await fetch('http://localhost:5000/api/judge/run', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    problemSlug: slug,
+                    code,
+                    language
+                  })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.results) {
+                  setTestResults(data.results);
+                  setShowResults(true);
+                  const passed = data.passed || data.results.filter((r: TestResult) => r.passed).length;
+                  const total = data.total || data.results.length;
+                  
+                  if (passed === total) {
+                    setOutput(`✓ All ${total} test case(s) passed!`);
+                  } else {
+                    const failed = data.results.find((r: TestResult) => !r.passed);
+                    let errorMsg = `✗ Failed on test case ${data.results.findIndex((r: TestResult) => !r.passed) + 1}/${total}\n\n`;
+                    
+                    if (failed?.error) {
+                      errorMsg += `Error: ${failed.error}`;
+                      if (failed.lineNumber) {
+                        errorMsg += `\n\n➤ Line ${failed.lineNumber} in your code`;
+                      }
+                    } else {
+                      errorMsg += `Wrong Answer\n\nExpected: ${JSON.stringify(failed?.expectedOutput)}\nGot: ${JSON.stringify(failed?.actualOutput)}`;
+                    }
+                    
+                    setOutput(errorMsg);
+                  }
+                } else {
+                  setOutput(`✗ Error: ${data.error || data.message || 'Execution failed'}`);
+                }
+              } catch (err) {
+                setOutput(`✗ Error: ${err instanceof Error ? err.message : 'Network error'}`);
+              } finally {
                 setRunning(false);
-              }, 1000);
+              }
             }} 
-            disabled={running}
+            disabled={running || submitting}
             className="bg-slate-700 hover:bg-slate-600 px-4 py-1 rounded flex items-center gap-2 disabled:opacity-50 transition-colors"
           >
             <Play size={14} /> Run
           </button>
           <button 
-            onClick={() => {
+            onClick={async () => {
+              if (!problem) return;
+              setSubmitting(true);
               setOutput("Submitting...");
-              setTimeout(() => setOutput("✓ Submission accepted"), 1000);
+              setShowResults(false);
+              setTestResults([]);
+              
+              try {
+                const response = await fetch('http://localhost:5000/api/judge/submit', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    problemSlug: slug,
+                    userId: 1,
+                    code,
+                    language
+                  })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.results) {
+                  setTestResults(data.results);
+                  setShowResults(true);
+                  const passedCount = data.passed || data.results.filter((r: TestResult) => r.passed).length;
+                  const totalCount = data.total || data.results.length;
+                  const allPassed = passedCount === totalCount;
+                  
+                  if (allPassed) {
+                    const avgTime = data.results.reduce((acc: number, r: TestResult) => acc + (r.executionTime || 0), 0) / data.results.length;
+                    setOutput(`✓ Accepted!\n\n${passedCount}/${totalCount} test cases passed\nRuntime: ${avgTime.toFixed(0)}ms\nMemory: ${data.results[0]?.memoryUsed || 'N/A'}`);
+                  } else {
+                    const failed = data.results.find((r: TestResult) => !r.passed);
+                    let errorMsg = `✗ Test Case ${passedCount + 1}/${totalCount} Failed\n\n`;
+                    
+                    if (failed?.error) {
+                      errorMsg += `Error: ${failed.error}`;
+                      if (failed.lineNumber) {
+                        errorMsg += `\n\n➤ Line ${failed.lineNumber} in your code`;
+                      }
+                    } else {
+                      errorMsg += `Wrong Answer\n\nExpected: ${JSON.stringify(failed?.expectedOutput)}\nGot: ${JSON.stringify(failed?.actualOutput)}`;
+                    }
+                    
+                    setOutput(errorMsg);
+                  }
+                } else {
+                  setOutput(`✗ Error: ${data.error || data.message || 'Submission failed'}`);
+                }
+              } catch (err) {
+                setOutput(`✗ Error: ${err instanceof Error ? err.message : 'Network error'}`);
+              } finally {
+                setSubmitting(false);
+              }
             }}
-            className="bg-green-600 hover:bg-green-700 px-4 py-1 rounded flex items-center gap-2 transition-colors"
+            disabled={running || submitting}
+            className="bg-green-600 hover:bg-green-700 px-4 py-1 rounded flex items-center gap-2 disabled:opacity-50 transition-colors"
           >
             <Upload size={14} /> Submit
           </button>
@@ -213,10 +331,77 @@ export default function SolvePage() {
               <Panel defaultSize={30} minSize={10} className="h-full">
                 <div className="h-full bg-[#0f172a] flex flex-col">
                   <div className="h-8 border-b border-slate-800 flex items-center px-4 text-xs font-semibold text-slate-400 bg-slate-900/50">
-                    Console
+                    {showResults ? 'Test Results' : 'Console'}
                   </div>
-                  <div className="flex-1 p-4 font-mono text-sm overflow-y-auto whitespace-pre-wrap text-green-400">
-                    {output || <span className="text-slate-600">Output will appear here</span>}
+                  <div className="flex-1 overflow-y-auto">
+                    {showResults && testResults.length > 0 ? (
+                      <div className="p-4 space-y-3">
+                        {testResults.map((result, idx) => (
+                          <div 
+                            key={idx} 
+                            className={`border rounded-lg p-3 ${result.passed ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5'}`}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-sm">
+                                {result.passed ? (
+                                  <span className="text-green-400">✓ Test Case {idx + 1}</span>
+                                ) : (
+                                  <span className="text-red-400">✗ Test Case {idx + 1}</span>
+                                )}
+                              </span>
+                              {result.executionTime && (
+                                <span className="text-xs text-slate-500">{result.executionTime}ms</span>
+                              )}
+                            </div>
+                            
+                            {!result.isHidden && (
+                              <div className="space-y-2 text-xs">
+                                <div>
+                                  <div className="text-slate-500">Input:</div>
+                                  <div className="bg-slate-900/50 p-2 rounded mt-1 font-mono text-slate-300">{result.input}</div>
+                                </div>
+                                
+                                <div>
+                                  <div className="text-slate-500">Expected:</div>
+                                  <div className="bg-slate-900/50 p-2 rounded mt-1 font-mono text-slate-300">{result.expectedOutput}</div>
+                                </div>
+                                
+                                <div>
+                                  <div className="text-slate-500">Output:</div>
+                                  <div className={`p-2 rounded mt-1 font-mono ${result.passed ? 'bg-green-900/20 text-green-300' : 'bg-red-900/20 text-red-300'}`}>
+                                    {result.actualOutput || 'No output'}
+                                  </div>
+                                </div>
+                                
+                                {result.error && (
+                                  <div>
+                                    <div className="text-red-400">Error:</div>
+                                    <div className="bg-red-900/20 p-2 rounded mt-1 font-mono text-red-300 text-xs">
+                                      {result.error}
+                                      {result.lineNumber && ` (Line ${result.lineNumber})`}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            
+                            {result.isHidden && !result.passed && (
+                              <div className="text-xs text-slate-500">Hidden test case failed</div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 font-mono text-sm whitespace-pre-wrap">
+                        {output ? (
+                          <div className={output.startsWith('✓') ? 'text-green-400' : output.startsWith('✗') ? 'text-red-400' : 'text-slate-300'}>
+                            {output}
+                          </div>
+                        ) : (
+                          <span className="text-slate-600">Output will appear here</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Panel>

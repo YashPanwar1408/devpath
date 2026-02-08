@@ -11,15 +11,17 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String   @id // Clerk user ID
   email     String   @unique
   name      String?
-  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  progress UserProgress[] // 👈 ADD THIS
-  submissions Submission[]
+  progress          UserProgress[]
+  submissions       Submission[]
+  interviewSessions InterviewSession[]
+  sharedResults     SharedInterviewResult[]
+  analytics         InterviewAnalytics?
 }
 
 model DSATopic {
@@ -64,7 +66,8 @@ model Problem {
   order       Int
   createdAt   DateTime @default(now())
 
-  progress UserProgress[]
+  progress    UserProgress[]
+  submissions Submission[]
 }
 
 model UserProgress {
@@ -101,4 +104,346 @@ model Submission {
 
   @@index([userId])
   @@index([problemId])
+}
+
+// Learn Platform Models
+model LearnDomain {
+  id         String          @id @default(uuid())
+  slug       String          @unique
+  title      String
+  createdAt  DateTime        @default(now())
+  categories LearnCategory[]
+}
+
+model LearnCategory {
+  id       String       @id @default(uuid())
+  title    String
+  order    Int
+  domainId String
+  domain   LearnDomain  @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  topics   LearnTopic[]
+
+  @@index([domainId])
+}
+
+model LearnTopic {
+  id         String        @id @default(uuid())
+  title      String
+  slug       String        @unique
+  order      Int
+  content    String        @db.Text
+  categoryId String
+  category   LearnCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime      @default(now())
+
+  @@index([categoryId])
+}
+
+// ============================================================================
+// AI MOCK INTERVIEW SYSTEM
+// ============================================================================
+
+model InterviewSession {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Interview Details
+  role             String   // frontend, backend, fullstack, etc.
+  duration         Int      // minutes (10, 15, 20)
+  status           String   // setup, ready, in-progress, completed, cancelled
+  
+  // Context
+  resumeSnapshot   String   @db.Text // JSON stringified resume
+  jobDescription   String?  @db.Text
+  resumeSummary    String?  @db.Text // Gemini-generated
+  jdSummary        String?  @db.Text // Gemini-generated
+  
+  // Vapi Integration
+  vapiCallId       String?
+  vapiAssistantId  String?
+  
+  // Transcript
+  transcript       Json?    // { messages: [], fullTranscript: "" }
+  
+  // Video Recording
+  videoUrl         String?  // S3/storage URL
+  videoRecorded    Boolean  @default(false)
+  
+  // Timestamps
+  createdAt        DateTime @default(now())
+  startedAt        DateTime?
+  endedAt          DateTime?
+  
+  // Relations
+  feedback         InterviewFeedback?
+  sharedResult     SharedInterviewResult?
+  
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model InterviewFeedback {
+  id                   String           @id @default(uuid())
+  sessionId            String           @unique
+  session              InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  // Overall Score
+  overallScore         Int              // 0-100
+  
+  // Detailed Metrics
+  communicationClarity Int              // 0-10
+  technicalDepth       Int              // 0-10
+  confidence           Int              // 0-10
+  roleAlignment        Int              // 0-10
+  
+  // Skill Ratings
+  skillRatings         Json             // [{ skill, rating, comment }]
+  
+  // Feedback
+  strengths            String[]
+  weaknesses           String[]
+  improvements         String[]
+  suggestedTopics      String[]
+  
+  // Learning Path
+  learningRoadmap      String           @db.Text // Markdown formatted
+  
+  // AI Summary
+  aiSummary            String           @db.Text
+  
+  createdAt            DateTime         @default(now())
+  
+  @@index([sessionId])
+}
+
+model QuestionBank {
+  id          String   @id @default(uuid())
+  role        String   // frontend, backend, fullstack, etc.
+  difficulty  String   // easy, medium, hard
+  category    String   // technical, behavioral, problem-solving
+  
+  question    String   @db.Text
+  followUps   String[] // Follow-up questions
+  keyPoints   String[] // Key points to evaluate
+  
+  // Metadata
+  tags        String[]
+  active      Boolean  @default(true)
+  usageCount  Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([role])
+  @@index([difficulty])
+  @@index([active])
+}
+
+model SharedInterviewResult {
+  id           String           @id @default(uuid())
+  sessionId    String           @unique
+  session      InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Share Settings
+  shareToken   String           @unique // URL-safe token
+  isPublic     Boolean          @default(false)
+  expiresAt    DateTime?
+  
+  // View Statistics
+  viewCount    Int              @default(0)
+  lastViewedAt DateTime?
+  
+  createdAt    DateTime         @default(now())
+  
+  @@index([shareToken])
+  @@index([userId])
+}
+
+model InterviewAnalytics {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Aggregated Statistics
+  totalInterviews       Int      @default(0)
+  averageScore          Float    @default(0)
+  averageCommunication  Float    @default(0)
+  averageTechnical      Float    @default(0)
+  averageConfidence     Float    @default(0)
+  
+  // Role-specific stats
+  roleStats            Json     // { frontend: {...}, backend: {...} }
+  
+  // Performance Trends (monthly)
+  monthlyScores        Json     // [{ month, avgScore, count }]
+  
+  // Top Strengths/Weaknesses
+  topStrengths         String[]
+  topWeaknesses        String[]
+  
+  lastUpdated          DateTime @updatedAt
+}
+
+// ============================================================================
+// CAREER ROADMAPS SYSTEM
+// ============================================================================
+
+model Roadmap {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  title       String
+  description String        @db.Text
+  icon        String        // emoji
+  level       String        // Beginner, Intermediate, Advanced
+  duration    String        // e.g., "6-8 months"
+  gradient    String        // Tailwind gradient classes
+  skills      String[]
+  popularity  Int           @default(0) // Job market demand percentage
+  isActive    Boolean       @default(true)
+  order       Int           @default(0)
+  
+  phases      RoadmapPhase[]
+  progress    RoadmapProgress[]
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@index([slug])
+  @@index([level])
+  @@index([isActive])
+}
+
+model RoadmapPhase {
+  id          String         @id @default(uuid())
+  roadmapId   String
+  roadmap     Roadmap        @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String         @db.Text
+  order       Int
+  
+  steps       RoadmapStep[]
+  
+  @@index([roadmapId])
+  @@index([order])
+}
+
+model RoadmapStep {
+  id                    String        @id @default(uuid())
+  phaseId               String
+  phase                 RoadmapPhase  @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  
+  title                 String
+  description           String        @db.Text
+  difficulty            String        // Beginner, Intermediate, Advanced
+  estimatedTime         String        // e.g., "2-3 weeks"
+  order                 Int
+  
+  // Learning Resources
+  topics                String[]      // Main topics covered
+  prerequisites         String[]      // Prerequisites
+  resources             Json          // [{ type, title, url, description }]
+  checkpoints           String[]      // Learning checkpoints
+  
+  // Related Content IDs (slugs)
+  relatedCheatsheets    String[]
+  relatedDSA            String[]
+  relatedInterviews     String[]
+  
+  progress              RoadmapProgress[]
+  
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  
+  @@index([phaseId])
+  @@index([order])
+}
+
+model RoadmapProgress {
+  id          String      @id @default(uuid())
+  userId      String
+  roadmapId   String
+  stepId      String
+  
+  roadmap     Roadmap     @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  step        RoadmapStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  
+  completed   Boolean     @default(false)
+  notes       String?     @db.Text
+  completedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@unique([userId, stepId])
+  @@index([userId])
+  @@index([roadmapId])
+  @@index([stepId])
+}
+
+// ============================================================================
+// CHEATSHEETS MODULE
+// ============================================================================
+
+model CheatsheetCategory {
+  id          String      @id @default(uuid())
+  slug        String      @unique
+  title       String
+  description String?
+  icon        String?
+  order       Int         @default(0)
+  color       String?     // Tailwind gradient colors
+  
+  cheatsheets Cheatsheet[]
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([slug])
+  @@index([order])
+}
+
+model Cheatsheet {
+  id          String              @id @default(uuid())
+  categoryId  String
+  category    CheatsheetCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  slug        String              @unique
+  title       String
+  subtitle    String?
+  description String?
+  icon        String?
+  
+  // Metadata
+  difficulty  String?             // Beginner, Intermediate, Advanced
+  tags        String[]
+  popularity  Int                 @default(0)
+  
+  // Content sections
+  overview    String?             @db.Text
+  syntax      Json?               // Code syntax examples
+  operations  Json?               // Common operations with code
+  examples    Json?               // Practical examples
+  mistakes    String[]            // Common mistakes
+  tips        String[]            // Interview tips
+  
+  // Additional content
+  relatedCheatsheets String[]      // Related cheatsheet slugs
+  relatedRoadmaps    String[]      // Related roadmap slugs
+  relatedDSA         String[]      // Related DSA topics
+  
+  // AI-ready fields for future
+  aiExplanation String?           @db.Text
+  voiceExplainer String?          // URL to audio explanation
+  
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  
+  @@index([categoryId])
+  @@index([slug])
+  @@index([difficulty])
+  @@index([popularity])
 }

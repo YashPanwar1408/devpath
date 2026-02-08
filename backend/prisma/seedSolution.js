@@ -2897,7 +2897,7 @@ public:
         "examples": [
             {
                 "input": "n = 4",
-                "output": "[[\"..Q.\",\"Q...\",\"...Q\",\".Q..\"],[\". .Q\",\"...Q\",\"Q...\",\"..Q.\"]]",
+                "output": "[[\"..Q.\",\"Q...\",\"...Q\",\".Q..\"],[\". .Q\",\"...Q\",\"Q...\",\"..Q.\"]]",
                 "explanation": "There are two distinct solutions to the 4-queens puzzle."
             },
             {

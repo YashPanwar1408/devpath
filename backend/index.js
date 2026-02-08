@@ -7,6 +7,10 @@ const interviewRoutes = require('./routes/interview');
 const atsRoutes = require('./routes/ats');
 const dsaRoutes = require('./routes/dsa');
 const progressRoutes = require('./routes/progress');
+const learnRoutes = require('./routes/learn');
+const resumeRoutes = require('./routes/resume');
+const roadmapsRoutes = require('./routes/roadmaps');
+const cheatsheetsRoutes = require('./routes/cheatsheets');
 
 // Load environment variables
 dotenv.config();
@@ -26,7 +30,10 @@ app.use('/api/interview', interviewRoutes);
 app.use('/api/ats', atsRoutes);
 app.use('/api/dsa', dsaRoutes);
 app.use('/api/progress', progressRoutes);
-
+app.use('/api/learn', learnRoutes);
+app.use('/api/roadmaps', roadmapsRoutes);
+app.use('/api/cheatsheets', cheatsheetsRoutes);
+app.use('/api', resumeRoutes);
 // Health check route
 app.get('/api/health', (req, res) => {
   res.status(200).json({

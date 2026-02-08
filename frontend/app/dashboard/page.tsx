@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 
 // --- Icons ---
@@ -45,6 +46,15 @@ const Icons = {
       <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
     </svg>
   ),
+  FileText: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <line x1="10" y1="9" x2="8" y2="9" />
+    </svg>
+  ),
   Flame: () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
       <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
@@ -80,14 +90,137 @@ const Icons = {
 };
 
 export default function Dashboard() {
-  const [userName, setUserName] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const storedName = localStorage.getItem('userName');
-      return storedName ? storedName.split(' ')[0] : 'Alex';
-    }
-    return 'Alex';
-  });
+  const { user, isLoaded } = useUser();
   const [showAllModules, setShowAllModules] = useState(false);
+  const [userStats, setUserStats] = useState({
+    streakDays: 0,
+    solvedTotal: 0,
+    modulesCompleted: 0,
+    weeklySolved: 0,
+    weeklyGoal: 6,
+  });
+  const [lastProblem, setLastProblem] = useState<{
+    title: string;
+    slug: string;
+    difficulty: string;
+    lastAttempt: string | null;
+    status: string;
+  } | null>(null);
+
+  const userName =
+    isLoaded && user ? user.firstName || user.fullName || 'Friend' : 'Guest';
+  const userId = user?.id || null;
+
+  useEffect(() => {
+    if (!userId) return;
+
+    interface ProgressEntry {
+      status: string;
+      lastAttempt: string | null;
+      problem?: {
+        title: string;
+        slug: string;
+        difficulty: string;
+      } | null;
+    }
+
+    async function fetchStats() {
+      try {
+        const res = await fetch(`http://localhost:5000/api/progress/${userId}`);
+        if (!res.ok) return;
+        const data: ProgressEntry[] = await res.json();
+
+        const solved = data.filter(
+          (p) => p.status === 'solved' && p.lastAttempt
+        );
+        const solvedTotal = solved.length;
+
+        const today = new Date();
+        const weekAgo = new Date();
+        weekAgo.setDate(today.getDate() - 7);
+
+        const weeklySolved = solved.filter((p) => {
+          const d = new Date(p.lastAttempt as string);
+          return d >= weekAgo;
+        }).length;
+
+        const dates = new Set(
+          solved.map((p) =>
+            new Date(p.lastAttempt as string).toDateString()
+          )
+        );
+        let streak = 0;
+        for (let i = 0; ; i++) {
+          const d = new Date();
+          d.setDate(today.getDate() - i);
+          if (dates.has(d.toDateString())) {
+            streak += 1;
+          } else {
+            break;
+          }
+        }
+
+        const modulesCompleted = Math.min(7, Math.floor(solvedTotal / 25));
+
+        const withAttempts = data.filter(
+          (p) => p.problem && p.lastAttempt
+        ) as ProgressEntry[];
+
+        if (withAttempts.length > 0) {
+          const sorted = [...withAttempts].sort(
+            (a, b) =>
+              new Date((b.lastAttempt as string)).getTime() -
+              new Date((a.lastAttempt as string)).getTime()
+          );
+          const lp = sorted[0];
+          setLastProblem({
+            title: lp.problem!.title,
+            slug: lp.problem!.slug,
+            difficulty: lp.problem!.difficulty,
+            lastAttempt: lp.lastAttempt,
+            status: lp.status,
+          });
+        } else {
+          setLastProblem(null);
+        }
+
+        setUserStats({
+          streakDays: streak,
+          solvedTotal,
+          modulesCompleted,
+          weeklySolved,
+          weeklyGoal: 6,
+        });
+      } catch (error) {
+        console.error('Failed to fetch user stats:', error);
+      }
+    }
+
+    fetchStats();
+  }, [userId]);
+
+  const weeklyPercent =
+    userStats.weeklyGoal === 0
+      ? 0
+      : Math.min(
+          100,
+          Math.round((userStats.weeklySolved / userStats.weeklyGoal) * 100)
+        );
+
+  const circumference = 2 * Math.PI * 40;
+  const progressOffset = circumference * (1 - weeklyPercent / 100);
+
+  const hasRecentProblem = !!lastProblem;
+  const continueProgressLabel = !hasRecentProblem
+    ? '0%'
+    : lastProblem!.status === 'solved'
+    ? '100%'
+    : '60%';
+  const continueProgressWidthClass = !hasRecentProblem
+    ? 'w-0'
+    : lastProblem!.status === 'solved'
+    ? 'w-full'
+    : 'w-3/4';
 
   const modules = [
     {
@@ -100,22 +233,14 @@ export default function Dashboard() {
     },
     {
       id: 2,
-      title: 'Full Stack Dev',
-      description: 'Build production web applications',
-      icon: <Icons.Stack />,
-      gradient: 'from-purple-500 to-pink-500',
+      title: 'Learning Paths',
+      description: 'Full Stack, AI/ML and more',
+      icon: <Icons.BookOpen />,
+      gradient: 'from-violet-500 to-purple-500',
       link: '/learn',
     },
     {
       id: 3,
-      title: 'AI & GenAI',
-      description: 'Learn ML and LLMs',
-      icon: <Icons.Brain />,
-      gradient: 'from-orange-500 to-yellow-500',
-      link: '/learn',
-    },
-    {
-      id: 4,
       title: 'Resume & ATS',
       description: 'Optimize your CV',
       icon: <Icons.File />,
@@ -123,7 +248,7 @@ export default function Dashboard() {
       link: '/resume',
     },
     {
-      id: 5,
+      id: 4,
       title: 'Mock Interviews',
       description: 'AI-powered practice',
       icon: <Icons.Mic />,
@@ -131,7 +256,7 @@ export default function Dashboard() {
       link: '/interview',
     },
     {
-      id: 6,
+      id: 5,
       title: 'Career Roadmaps',
       description: 'Personalized learning paths',
       icon: <Icons.Map />,
@@ -139,11 +264,11 @@ export default function Dashboard() {
       link: '/roadmaps',
     },
     {
-      id: 7,
+      id: 6,
       title: 'Cheatsheets',
       description: 'Quick reference guides',
-      icon: <Icons.BookOpen />,
-      gradient: 'from-cyan-500 to-blue-500',
+      icon: <Icons.FileText />,
+      gradient: 'from-amber-500 to-orange-500',
       link: '/cheatsheets',
     },
   ];
@@ -164,35 +289,6 @@ export default function Dashboard() {
         <div className="absolute top-[40%] left-[20%] w-[20%] h-[20%] bg-cyan-500/5 rounded-full blur-[80px]" />
       </div>
 
-      {/* Navbar */}
-      <nav className="relative z-50 pt-6 px-6">
-        <div className="max-w-6xl mx-auto bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-violet-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
-              D
-            </div>
-            <span className="font-bold text-xl tracking-tight">DevPath</span>
-          </Link>
-          <div className="flex items-center gap-6">
-            <Link href="/community" className="text-gray-400 hover:text-white transition-colors text-sm font-medium hidden sm:block">
-              Community
-            </Link>
-            <div className="w-px h-6 bg-white/10 hidden sm:block" />
-            <div className="flex items-center gap-3">
-               <div className="text-right hidden sm:block">
-                  <div className="text-sm font-semibold text-white">{userName}</div>
-                  <div className="text-xs text-gray-400">Pro Member</div>
-               </div>
-               <button className="w-10 h-10 rounded-full bg-linear-to-tr from-blue-500 to-purple-600 p-0.5 hover:scale-105 transition-transform">
-                  <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center font-bold text-sm">
-                    {userName[0].toUpperCase()}
-                  </div>
-               </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-12 space-y-12">
         
@@ -206,7 +302,11 @@ export default function Dashboard() {
                 Good afternoon, {userName} <span className="animate-pulse inline-block">👋</span>
               </h1>
               <p className="text-lg text-gray-400 max-w-xl">
-                You&apos;re on a <span className="text-orange-400 font-semibold">12-day streak</span>. Don&apos;t break the chain now.
+                You&apos;re on a{' '}
+                <span className="text-orange-400 font-semibold">
+                  {userStats.streakDays || 0}-day streak
+                </span>
+                . Don&apos;t break the chain now.
               </p>
             </div>
             
@@ -222,17 +322,36 @@ export default function Dashboard() {
             </div>
           </div>
           
-          {/* Progress Card (Replaced SVG with clean layout) */}
+          {/* Progress Card - uses per-user weekly stats */}
           <div className="md:w-80 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex items-center justify-between gap-4 shadow-xl">
              <div className="space-y-1">
                 <p className="text-sm text-gray-400 font-medium">Weekly Goal</p>
-                <div className="text-3xl font-bold text-white">4<span className="text-gray-500">/6</span></div>
-                <p className="text-xs text-green-400">On track</p>
+                <div className="text-3xl font-bold text-white">
+                  {userStats.weeklySolved}
+                  <span className="text-gray-500">/{userStats.weeklyGoal}</span>
+                </div>
+                <p className="text-xs text-green-400">
+                  {weeklyPercent >= 100
+                    ? 'Goal reached'
+                    : weeklyPercent >= 50
+                    ? 'On track'
+                    : 'Keep going'}
+                </p>
              </div>
              <div className="relative w-24 h-24">
                 <svg className="w-full h-full transform -rotate-90">
                   <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="none" className="text-white/10" />
-                  <circle cx="48" cy="48" r="40" stroke="url(#progress-gradient)" strokeWidth="8" fill="none" strokeDasharray="251.2" strokeDashoffset="83" strokeLinecap="round" />
+                  <circle
+                    cx="48"
+                    cy="48"
+                    r="40"
+                    stroke="url(#progress-gradient)"
+                    strokeWidth="8"
+                    fill="none"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={progressOffset}
+                    strokeLinecap="round"
+                  />
                   <defs>
                     <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%" stopColor="#3b82f6" />
@@ -240,7 +359,9 @@ export default function Dashboard() {
                     </linearGradient>
                   </defs>
                 </svg>
-                <div className="absolute inset-0 flex items-center justify-center font-bold text-xl">68%</div>
+                <div className="absolute inset-0 flex items-center justify-center font-bold text-xl">
+                  {weeklyPercent}%
+                </div>
              </div>
           </div>
         </div>
@@ -248,25 +369,35 @@ export default function Dashboard() {
         {/* 2. CONTINUE LEARNING (HERO CARD) */}
         <div className="group relative">
           <div className="absolute -inset-0.5 bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl blur opacity-30 group-hover:opacity-60 transition duration-500" />
-          <Link href="/dsa/solve/two-sum" className="relative block bg-[#0B1121] rounded-3xl p-8 border border-white/10 overflow-hidden">
+          <Link
+            href={hasRecentProblem ? `/dsa/solve/${lastProblem!.slug}` : '/dsa/practice'}
+            className="relative block bg-[#0B1121] rounded-3xl p-8 border border-white/10 overflow-hidden"
+          >
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
               <div className="space-y-4 max-w-2xl">
                 <div className="flex items-center gap-2 text-sm font-semibold text-blue-400 uppercase tracking-wider">
-                   <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/> In Progress
+                   <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"/>
+                   {hasRecentProblem ? 'In Progress' : 'Getting started'}
                 </div>
                 <div>
-                   <h3 className="text-3xl font-bold mb-2 text-white group-hover:text-blue-200 transition-colors">Two Sum - Array Problem</h3>
-                   <p className="text-gray-400 text-lg">You were working on the optimal Hash Map solution. You&apos;re mostly there!</p>
+                   <h3 className="text-3xl font-bold mb-2 text-white group-hover:text-blue-200 transition-colors">
+                     {hasRecentProblem ? lastProblem!.title : 'Start your DSA journey'}
+                   </h3>
+                   <p className="text-gray-400 text-lg">
+                     {hasRecentProblem
+                       ? "Continue where you left off on your last problem."
+                       : "Kick off with foundational problems and build your streak."}
+                   </p>
                 </div>
                 
                 {/* Progress Bar */}
                 <div className="space-y-2 max-w-md pt-2">
                    <div className="flex justify-between text-xs font-medium text-gray-400">
                       <span>Progress</span>
-                      <span>85%</span>
+                     <span>{continueProgressLabel}</span>
                    </div>
                    <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-linear-to-r from-blue-500 to-purple-500 w-[85%] rounded-full relative overflow-hidden">
+                     <div className={`h-full bg-linear-to-r from-blue-500 to-purple-500 rounded-full relative overflow-hidden ${continueProgressWidthClass}`}>
                          <div className="absolute inset-0 bg-white/20 animate-[shimmer_2s_infinite]" />
                       </div>
                    </div>
@@ -275,10 +406,17 @@ export default function Dashboard() {
                 <div className="flex items-center gap-6 text-sm text-gray-500 pt-2">
                   <div className="flex items-center gap-1.5">
                     <Icons.Flame />
-                    <span className="text-orange-400 font-medium">Hard</span>
+                    <span className="text-orange-400 font-medium">
+                      {hasRecentProblem ? lastProblem!.difficulty : 'Not started'}
+                    </span>
                   </div>
                   <div className="w-1 h-1 rounded-full bg-gray-700" />
-                  <span>Last attempt: 2h ago</span>
+                  <span>
+                    Last attempt:{' '}
+                    {hasRecentProblem && lastProblem!.lastAttempt
+                      ? new Date(lastProblem!.lastAttempt).toLocaleDateString()
+                      : 'Not started yet'}
+                  </span>
                 </div>
               </div>
 
@@ -360,12 +498,27 @@ export default function Dashboard() {
            ))}
         </div>
 
-        {/* 5. STATS (Rank Removed, 3 Cols) */}
+        {/* 5. STATS (per-user) */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-white/10">
           {[
-            { label: 'Days Streak', value: '12', icon: '🔥', color: 'from-orange-500 to-red-500' },
-            { label: 'Problems Solved', value: '145', icon: '✅', color: 'from-blue-500 to-cyan-500' },
-            { label: 'Modules Completed', value: '4/7', icon: '📚', color: 'from-green-500 to-emerald-500' },
+            {
+              label: 'Days Streak',
+              value: String(userStats.streakDays || 0),
+              icon: '🔥',
+              color: 'from-orange-500 to-red-500',
+            },
+            {
+              label: 'Problems Solved',
+              value: String(userStats.solvedTotal || 0),
+              icon: '✅',
+              color: 'from-blue-500 to-cyan-500',
+            },
+            {
+              label: 'Modules Completed',
+              value: `${userStats.modulesCompleted || 0}/7`,
+              icon: '📚',
+              color: 'from-green-500 to-emerald-500',
+            },
           ].map((stat, index) => (
             <div key={index} className="bg-white/2 border border-white/5 rounded-2xl p-6 hover:bg-white/5 transition-colors flex items-center gap-5">
               <div className="text-4xl">{stat.icon}</div>

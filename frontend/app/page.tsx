@@ -58,7 +58,7 @@ export default function Home() {
             </div>
 
             {/* Action Button */}
-            <Link href="/login">
+            <Link href="/sign-in">
               <button className={`bg-white text-black font-bold hover:bg-gray-200 transition-all rounded-full ${
                 scrolled ? 'px-4 py-1.5 text-xs' : 'px-6 py-2.5 text-sm'
               }`}>
@@ -102,7 +102,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link href="/login">
+            <Link href="/sign-in">
               <button className="relative inline-flex h-12 overflow-hidden rounded-full p-px focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
                 <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
                 <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-8 py-1 text-sm font-medium text-white backdrop-blur-3xl">
@@ -330,7 +330,7 @@ export default function Home() {
           <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
             Join 10,000+ students who have already secured their dream jobs using DevPath.
           </p>
-          <Link href="/login">
+          <Link href="/sign-in">
             <button className="px-12 py-5 rounded-full bg-white text-black font-bold text-xl hover:scale-105 transition-transform shadow-[0_0_40px_-10px_rgba(255,255,255,0.5)]">
               Start for Free
             </button>

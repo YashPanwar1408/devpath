@@ -31,15 +31,18 @@ export default function InterviewRoom() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isParticipantsOpen, setIsParticipantsOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+
+  // Initialize messages with timestamp on client side only
+  useEffect(() => {
+    setMessages([{
       id: '1',
       sender: 'Interviewer',
       message: 'Welcome to the interview! Feel free to use the whiteboard or code editor.',
-      timestamp: new Date(new Date().getTime() - 120000),
+      timestamp: new Date(Date.now() - 120000),
       isMe: false
-    }
-  ]);
+    }]);
+  }, []);
 
   const [participants, setParticipants] = useState<Participant[]>([
     {
